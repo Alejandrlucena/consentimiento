@@ -75,8 +75,8 @@ body {
   display: grid;
   /* En escritorio: formulario a la izquierda (ancho cómodo) y la vista
      previa a la derecha compartiendo el ancho restante. Cada columna tiene
-     su propia altura natural ('start') de modo que desplegar/cerrar secciones
-     del formulario NO estira la vista previa. */
+     su altura natural; 'start' alinea sus topes y evita estirar el preview
+     cuando se despliegan secciones del formulario. */
   grid-template-columns: minmax(360px, 480px) 1fr;
   gap: 24px;
   padding: 24px;
@@ -96,10 +96,10 @@ body {
 }
 
 /*
-  Vista previa: se mantiene fija (sticky) junto a la parte visible de la
-  pantalla en escritorio. Así, al hacer scroll por el formulario (o desplegar
-  secciones como Salud o Firma) el preview sigue siempre visible a la derecha,
-  sin perderse de vista y sin generar un marco gris vacío (no se estira).
+  La vista previa queda fija (sticky) bajo la barra superior mientras haces
+  scroll por la página. Así, en secciones bajas del formulario (Salud, Firma)
+  el preview sigue siempre visible a la derecha y no se pierde de vista.
+  'align-self: start' mantiene su tope alineado con el del formulario.
 */
 .preview-card {
   position: sticky;
@@ -425,11 +425,12 @@ body {
 .toast.error { background: #dc2626; }
 
 @media (max-width: 900px) {
+  /* Móvil/tablet: una sola columna con scroll de página normal,
+     sin paneles fijos ni preview sticky. */
   .main-container {
     grid-template-columns: 1fr;
     padding: 14px;
   }
-  /* En pantallas de una columna la vista previa deja de estar fija */
   .preview-card {
     position: static;
   }
