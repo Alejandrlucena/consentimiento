@@ -25,11 +25,13 @@ El PDF (una hoja A4) se construye con el mismo modelo que dibuja la vista previa
 Ves a [script.google.com](https://script.google.com) → Proyecto nuevo. Sustituye el contenido por el de **`apps-script/Code.gs`** (incluido en el repositorio).
 
 ### 2. Configura la carpeta
-En `Code.gs` cambia la constante `FOLDER_ID` por el ID de la carpeta de Drive donde se guardarán los PDFs:
+La carpeta de destino **no está hardcodeada** en el código. Se configura una sola vez mediante `setupFolder()` en la consola del editor (Menú **Ejecutar → Ejecutar función**), pasándole el ID de la carpeta de Drive:
+
+```js
+setupFolder('AQUI_EL_ID_DE_LA_CARPETA')
 ```
-var FOLDER_ID = 'REEMPLAZA_CON_EL_ID_DE_LA_CARPETA';
-```
-El ID es el tramo de la URL: `https://drive.google.com/drive/folders/<AQUI_EL_ID>`.
+
+El ID es el tramo de la URL: `https://drive.google.com/drive/folders/<AQUI_EL_ID>`. Queda guardado en *ScriptProperties*, por lo que puedes apuntar a carpetas distintas en test y producción sin tocar código.
 
 ### 3. Despliega como Web App
 - Menú **Implementar → Nueva implementación** → tipo **Aplicación web**.
@@ -48,9 +50,11 @@ Botón **⚙ Configuración** → campo *Apps Script (destino de los PDFs)* → 
 
 ## Despliegue en GitHub
 
-1. Sube esta carpeta a un repositorio (privado o público), rama `main`.
-2. **Settings → Pages** → *Branch* `main`, carpeta `/root`, *Save*.
-3. Web en `https://TU_USUARIO.github.io/TU_REPO/`.
+Este proyecto ya está desplegado en **GitHub Pages**:
+- Sitio: <https://Alejandrlucena.github.io/consentimiento/>
+- Repositorio: <https://github.com/Alejandrlucena/consentimiento>
+
+Para republicar tras un cambio: sube los archivos a la rama `main` y GitHub Pages regenera automáticamente (tarda un momento; recarga con `Ctrl+F5`).
 
 > ⚠️ **No uses `file://` (doble clic):** Edge/Chrome bloquean `localStorage` y el `fetch` (CORS). Usa siempre un servidor local o GitHub Pages.
 
@@ -64,4 +68,6 @@ Botón **⚙ Configuración** → campo *Apps Script (destino de los PDFs)* → 
 
 ## Privacidad
 
-Con repo **privado** el código no es visible, pero `*.github.io` es pública. GitHub Pages no permite autenticación de visitantes.
+El repositorio es **público** para poder usar GitHub Pages gratuito (que no funciona en repos privados). Recuerda **no a cometer ni el ID de tu carpeta de Drive ni tokens** en el código ni en el historial: la carpeta se configura en *ScriptProperties* de Apps Script, nunca en el repo. Si alguna vez filtras un token, revócalo en GitHub y genera uno nuevo.
+
+GitHub Pages (`*.github.io`) es pública y no permite autenticación de visitantes.
