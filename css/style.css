@@ -75,7 +75,9 @@ body {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  align-items: start;
+  /* 'stretch' hace que ambas tarjetas (formulario y vista previa) tengan
+     la misma altura en la fila. */
+  align-items: stretch;
 }
 
 /* Tarjetas: caja blanca con sombra suave para formulario y vista previa */
@@ -86,6 +88,9 @@ body {
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   min-width: 0;
+  /* Columnas flex para que, al estirarse el grid, el preview rellene la altura */
+  display: flex;
+  flex-direction: column;
 }
 
 /* La vista previa contiene exclusivamente su canvas; nada debe salirse de esta caja */
@@ -253,11 +258,13 @@ body {
   border-radius: 8px;
   background: #6b7280;
   min-height: 500px;
-  max-height: 900px;
   overflow: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  /* Ocupa todo el alto disponible dentro de la tarjeta (para igualar
+     altura con el formulario) */
+  flex: 1 1 auto;
 }
 
 .pdf-container canvas {
