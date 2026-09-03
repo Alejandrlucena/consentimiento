@@ -84,6 +84,39 @@
     localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
   }
 
+  // ---------- Estado colapsado/expandido de las secciones del formulario ----------
+  var secciones = document.querySelectorAll('details.section');
+  function recogerEstadoSecciones() {
+    var res = {}, i;
+    for (i = 0; i < secciones.length; i++) {
+      var sum = secciones[i].querySelector('summary');
+      res[sum.textContent.trim()] = secciones[i].hasAttribute('open');
+    }
+    return res;
+  }
+  function guardarEstadoSecciones() {
+    var config = cargarConfig();
+    config.secciones = recogerEstadoSecciones();
+    guardarConfig(config);
+  }
+  function aplicarEstadoSecciones() {
+    var config = cargarConfig();
+    var guardadas = config.secciones || {};
+    var i;
+    for (i = 0; i < secciones.length; i++) {
+      var sum = secciones[i].querySelector('summary');
+      var clave = sum.textContent.trim();
+      if (guardadas[clave] === true) secciones[i].setAttribute('open', '');
+      else if (guardadas[clave] === false) secciones[i].removeAttribute('open');
+    }
+  }
+  function initEstadoSecciones() {
+    var i;
+    for (i = 0; i < secciones.length; i++) {
+      secciones[i].addEventListener('toggle', guardarEstadoSecciones);
+    }
+  }
+
   function guardarEstudioEnFormulario() {
     var config = cargarConfig();
     var estudio = config.estudio || {};
@@ -710,6 +743,8 @@
   });
 
   // ---------- Inicialización ----------
+  aplicarEstadoSecciones();
+  initEstadoSecciones();
   signaturePad = initFirma(el.firmaCanvas, renderPreview);
   signaturePadProf = initFirma(el.firmaProfCanvas, renderPreview);
   signaturePad.onEnd = renderPreview;
