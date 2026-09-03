@@ -4,6 +4,11 @@
   padding: 0;
 }
 
+/* Altura de la barra superior, usada para fijar la vista previa en pantalla */
+:root {
+  --topbar-h: 56px;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f3f4f6;
@@ -69,15 +74,15 @@ body {
 .main-container {
   display: grid;
   /* En escritorio: formulario a la izquierda (ancho cómodo) y la vista
-     previa ocupando todo el ancho restante de la derecha. */
+     previa a la derecha compartiendo el ancho restante. Cada columna tiene
+     su propia altura natural ('start') de modo que desplegar/cerrar secciones
+     del formulario NO estira la vista previa. */
   grid-template-columns: minmax(360px, 480px) 1fr;
   gap: 24px;
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  /* 'stretch' hace que ambas tarjetas (formulario y vista previa) tengan
-     la misma altura en la fila. */
-  align-items: stretch;
+  align-items: start;
 }
 
 /* Tarjetas: caja blanca con sombra suave para formulario y vista previa */
@@ -88,14 +93,18 @@ body {
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   min-width: 0;
-  /* Columnas flex para que, al estirarse el grid, el preview rellene la altura */
-  display: flex;
-  flex-direction: column;
 }
 
-/* La vista previa contiene exclusivamente su canvas; nada debe salirse de esta caja */
+/*
+  Vista previa: se mantiene fija (sticky) junto a la parte visible de la
+  pantalla en escritorio. Así, al hacer scroll por el formulario (o desplegar
+  secciones como Salud o Firma) el preview sigue siempre visible a la derecha,
+  sin perderse de vista y sin generar un marco gris vacío (no se estira).
+*/
 .preview-card {
-  position: relative;
+  position: sticky;
+  top: calc(var(--topbar-h) + 16px);
+  align-self: start;
   overflow: hidden;
 }
 
@@ -262,9 +271,6 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  /* Ocupa todo el alto disponible dentro de la tarjeta (para igualar
-     altura con el formulario) */
-  flex: 1 1 auto;
 }
 
 .pdf-container canvas {
@@ -422,6 +428,10 @@ body {
   .main-container {
     grid-template-columns: 1fr;
     padding: 14px;
+  }
+  /* En pantallas de una columna la vista previa deja de estar fija */
+  .preview-card {
+    position: static;
   }
 }
 

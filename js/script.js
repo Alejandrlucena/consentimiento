@@ -773,6 +773,13 @@
   });
 
   // ---------- Inicialización ----------
+  function ajustarOffsetPreview() {
+    var barra = document.querySelector('.topbar');
+    var h = barra ? barra.offsetHeight : 56;
+    document.documentElement.style.setProperty('--topbar-h', h + 'px');
+  }
+  ajustarOffsetPreview();
+  window.addEventListener('resize', ajustarOffsetPreview);
   aplicarEstadoSecciones();
   initEstadoSecciones();
   signaturePad = initFirma(el.firmaCanvas, renderPreview);
