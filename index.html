@@ -17,36 +17,44 @@
   <main class="main-container">
     <!-- Card: formulario -->
     <section class="form-card">
-      <h2>Documento</h2>
+      <details class="section" open>
+        <summary>Documento</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="tituloDoc">Título del documento</label>
+            <input type="text" id="tituloDoc" placeholder="Consentimiento informado para tatuaje" autocomplete="off">
+          </div>
+        </div>
+      </details>
 
-      <div class="field">
-        <label for="tituloDoc">Título del documento</label>
-        <input type="text" id="tituloDoc" placeholder="Consentimiento informado para tatuaje" autocomplete="off">
-      </div>
+      <details class="section" open>
+        <summary>Datos del establecimiento</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="estudio">Nombre del estudio</label>
+            <input type="text" id="estudio" placeholder="Nombre del estudio" autocomplete="off">
+          </div>
 
-      <h2>Datos del establecimiento</h2>
+          <div class="field">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" placeholder="Dirección completa" autocomplete="off">
+          </div>
 
-      <div class="field">
-        <label for="estudio">Nombre del estudio</label>
-        <input type="text" id="estudio" placeholder="Nombre del estudio" autocomplete="off">
-      </div>
+          <div class="field">
+            <label for="telEstudio">Teléfono / Contacto</label>
+            <input type="tel" id="telEstudio" placeholder="Teléfono o email" autocomplete="off">
+          </div>
 
-      <div class="field">
-        <label for="direccion">Dirección</label>
-        <input type="text" id="direccion" placeholder="Dirección completa" autocomplete="off">
-      </div>
+          <div class="field">
+            <label for="tatuador">Tatuador/a (nombre y apellidos)</label>
+            <input type="text" id="tatuador" placeholder="Nombre del profesional" autocomplete="off">
+          </div>
+        </div>
+      </details>
 
-      <div class="field">
-        <label for="telEstudio">Teléfono / Contacto</label>
-        <input type="tel" id="telEstudio" placeholder="Teléfono o email" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="tatuador">Tatuador/a (nombre y apellidos)</label>
-        <input type="text" id="tatuador" placeholder="Nombre del profesional" autocomplete="off">
-      </div>
-
-      <h2>Datos del cliente</h2>
+      <details class="section" open>
+        <summary>Datos del cliente</summary>
+        <div class="section-body">
 
       <div class="field">
         <label for="nombreCompleto">Nombre completo</label>
@@ -86,83 +94,95 @@
         <label for="zonaTatuaje">Zona del tatuaje</label>
         <input type="text" id="zonaTatuaje" placeholder="Ej. Antebrazo izquierdo" autocomplete="off">
       </div>
-
-      <h2>Detalles del procedimiento / tatuaje</h2>
-
-      <div class="field">
-        <label for="diseno">Descripción / concepto del diseño</label>
-        <input type="text" id="diseno" placeholder="Descripción del diseño o dibujo" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="tintas">Tintas / pigmentos (nº de lote)</label>
-        <input type="text" id="tintas" placeholder="Ej. Negro - Lote 12A" autocomplete="off">
-      </div>
-
-      <h2>Declaración de salud</h2>
-      <p class="hint">Marque con una X las casillas para declarar que:</p>
-
-      <label class="check">
-        <input type="checkbox" id="salud1">
-        <span>No padezco enfermedades infecciosas transmisibles por sangre (VIH, Hepatitis B/C, etc.).</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud2">
-        <span>No sufro problemas de coagulación ni tomo medicamentos anticoagulantes.</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud3">
-        <span>No tengo alergias conocidas a metales, tintas, látex o antisépticos.</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud4">
-        <span>No padezco afecciones de la piel en la zona a tatuar (psoriasis, eccemas, queloides, etc.).</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud5">
-        <span>No estoy embarazada ni en periodo de lactancia.</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud6">
-        <span>No sufro enfermedades cardíacas, epilepsia o diabetes (o están controladas).</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="salud7">
-        <span>No estoy bajo los efectos de alcohol, drogas o medicamentos que alteren mis capacidades.</span>
-      </label>
-
-      <p class="hint">Declaración adicional (opcional)</p>
-      <textarea id="declaracionExtra" rows="2" placeholder="Observaciones médicas o particulares…" autocomplete="off"></textarea>
-
-      <label class="check">
-        <input type="checkbox" id="cuidados">
-        <span>He recibido y comprendido las instrucciones de cuidados posteriores.</span>
-      </label>
-
-      <h2>Firma</h2>
-
-      <div class="field">
-        <label for="ciudad">Lugar / Ciudad de firma</label>
-        <input type="text" id="ciudad" placeholder="Ej. Madrid" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label>Firma del cliente</label>
-        <div class="firma-wrapper">
-          <canvas id="firmaCanvas"></canvas>
-          <button id="btnLimpiarFirma" class="btn btn-small" type="button">Limpiar firma</button>
         </div>
-        <p class="hint">Firma con el ratón o el dedo sobre el recuadro.</p>
-      </div>
+      </details>
 
-      <div class="field">
-        <label>Firma del profesional / tatuador</label>
-        <div class="firma-wrapper">
-          <canvas id="firmaProfCanvas"></canvas>
-          <button id="btnLimpiarFirmaProf" class="btn btn-small" type="button">Limpiar firma</button>
+      <details class="section">
+        <summary>Detalles del procedimiento / tatuaje</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="diseno">Descripción / concepto del diseño</label>
+            <input type="text" id="diseno" placeholder="Descripción del diseño o dibujo" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="tintas">Tintas / pigmentos (nº de lote)</label>
+            <input type="text" id="tintas" placeholder="Ej. Negro - Lote 12A" autocomplete="off">
+          </div>
         </div>
-        <p class="hint">Firma del profesional.</p>
-      </div>
+      </details>
+
+      <details class="section">
+        <summary>Declaración de salud</summary>
+        <div class="section-body">
+          <p class="hint">Marque con una X las casillas para declarar que:</p>
+
+          <label class="check">
+            <input type="checkbox" id="salud1">
+            <span>No padezco enfermedades infecciosas transmisibles por sangre (VIH, Hepatitis B/C, etc.).</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud2">
+            <span>No sufro problemas de coagulación ni tomo medicamentos anticoagulantes.</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud3">
+            <span>No tengo alergias conocidas a metales, tintas, látex o antisépticos.</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud4">
+            <span>No padezco afecciones de la piel en la zona a tatuar (psoriasis, eccemas, queloides, etc.).</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud5">
+            <span>No estoy embarazada ni en periodo de lactancia.</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud6">
+            <span>No sufro enfermedades cardíacas, epilepsia o diabetes (o están controladas).</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="salud7">
+            <span>No estoy bajo los efectos de alcohol, drogas o medicamentos que alteren mis capacidades.</span>
+          </label>
+
+          <p class="hint">Declaración adicional (opcional)</p>
+          <textarea id="declaracionExtra" rows="2" placeholder="Observaciones médicas o particulares…" autocomplete="off"></textarea>
+
+          <label class="check">
+            <input type="checkbox" id="cuidados">
+            <span>He recibido y comprendido las instrucciones de cuidados posteriores.</span>
+          </label>
+        </div>
+      </details>
+
+      <details class="section">
+        <summary>Firma</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="ciudad">Lugar / Ciudad de firma</label>
+            <input type="text" id="ciudad" placeholder="Ej. Madrid" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label>Firma del cliente</label>
+            <div class="firma-wrapper">
+              <canvas id="firmaCanvas"></canvas>
+              <button id="btnLimpiarFirma" class="btn btn-small" type="button">Limpiar firma</button>
+            </div>
+            <p class="hint">Firma con el ratón o el dedo sobre el recuadro.</p>
+          </div>
+
+          <div class="field">
+            <label>Firma del profesional / tatuador</label>
+            <div class="firma-wrapper">
+              <canvas id="firmaProfCanvas"></canvas>
+              <button id="btnLimpiarFirmaProf" class="btn btn-small" type="button">Limpiar firma</button>
+            </div>
+            <p class="hint">Firma del profesional.</p>
+          </div>
+        </div>
+      </details>
     </section>
 
     <!-- Card: vista previa del documento -->

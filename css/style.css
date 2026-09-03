@@ -444,3 +444,45 @@ input, select, textarea {
   border-color: #2563eb;
   background: #eff6ff;
 }
+
+/* Secciones colapsables del formulario (acordeón) */
+details.section {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+details.section > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+details.section > summary::-webkit-details-marker {
+  display: none;
+}
+/* Flecha indicadora */
+details.section > summary::before {
+  content: '▸';
+  display: inline-block;
+  transition: transform 0.2s;
+  color: #2563eb;
+  font-size: 0.9rem;
+}
+details.section[open] > summary::before {
+  transform: rotate(90deg);
+}
+details.section > .section-body {
+  padding: 16px;
+}
+details.section[open] > summary {
+  border-bottom: 1px solid #e5e7eb;
+}
