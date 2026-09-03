@@ -224,16 +224,28 @@
     <div class="modal-box">
       <h3>Configuración</h3>
 
-      <p class="cfg-label">Datos del establecimiento (se guardan permanentemente)</p>
+      <p class="cfg-label">Datos del establecimiento y profesional (se guardan en este navegador)</p>
       <input type="text" id="cfgEstudioNombre" placeholder="Nombre del estudio">
       <input type="text" id="cfgEstudioDireccion" placeholder="Dirección">
       <input type="text" id="cfgEstudioTelefono" placeholder="Teléfono / Contacto">
       <input type="text" id="cfgEstudioCiudad" placeholder="Ciudad">
+      <input type="text" id="cfgEstudioTatuador" placeholder="Tatuador / profesional">
 
       <p class="cfg-label">Apps Script (destino de los PDFs)</p>
       <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/XXXXX/exec">
 
-      <p class="hint">La configuración se guarda de forma permanente. El resto de datos se borran al recargar la página.</p>
+      <p class="hint">⚠️ La configuración se guarda de forma permanente en el navegador (localStorage), no en ningún servidor. El resto de datos del formulario se borran al recargar la página.</p>
+
+      <div class="config-danger">
+        <p class="cfg-label">Zona de borrado</p>
+        <div class="danger-btns">
+          <button type="button" class="btn btn-danger" id="btnBorrarEstudio">🗑️ Borrar datos del establecimiento</button>
+          <button type="button" class="btn btn-danger" id="btnBorrarScript">🗑️ Borrar configuración Apps Script</button>
+          <button type="button" class="btn btn-danger" id="btnBorrarTodo">🧹 Borrar todo</button>
+        </div>
+        <p class="hint">Estas acciones borran datos guardados en este navegador. No afectan a tus archivos de Drive.</p>
+      </div>
+
       <div class="modal-actions">
         <button id="btnCancelarConfig" class="btn">Cancelar</button>
         <button id="btnGuardarConfig" class="btn btn-primary">Guardar configuración</button>

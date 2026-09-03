@@ -51,6 +51,10 @@
     cfgEstudioCiudad: document.getElementById('cfgEstudioCiudad'),
     btnCancelarConfig: document.getElementById('btnCancelarConfig'),
     btnGuardarConfig: document.getElementById('btnGuardarConfig'),
+    cfgEstudioTatuador: document.getElementById('cfgEstudioTatuador'),
+    btnBorrarEstudio: document.getElementById('btnBorrarEstudio'),
+    btnBorrarScript: document.getElementById('btnBorrarScript'),
+    btnBorrarTodo: document.getElementById('btnBorrarTodo'),
     toast: document.getElementById('toast')
   };
 
@@ -124,10 +128,11 @@
     el.direccion.value = estudio.direccion || '';
     el.telEstudio.value = estudio.telefono || '';
     el.ciudad.value = estudio.ciudad || '';
+    el.tatuador.value = estudio.tatuador || '';
   }
 
   function limpiarFormularioNoEstudio() {
-    ['tatuador', 'nombre', 'dni', 'telefono', 'email', 'zonaTatuaje'].forEach(function (id) {
+    ['nombre', 'dni', 'telefono', 'email', 'zonaTatuaje'].forEach(function (id) {
       if (el[id]) el[id].value = '';
     });
     if (el.nacDia) el.nacDia.value = 'Dia';
@@ -717,6 +722,7 @@
     el.cfgEstudioDireccion.value = est.direccion || '';
     el.cfgEstudioTelefono.value = est.telefono || '';
     el.cfgEstudioCiudad.value = est.ciudad || '';
+    el.cfgEstudioTatuador.value = est.tatuador || '';
     el.popupConfig.classList.add('active');
   });
   el.btnCancelarConfig.addEventListener('click', function () { el.popupConfig.classList.remove('active'); });
@@ -727,13 +733,37 @@
       nombre: el.cfgEstudioNombre.value.trim(),
       direccion: el.cfgEstudioDireccion.value.trim(),
       telefono: el.cfgEstudioTelefono.value.trim(),
-      ciudad: el.cfgEstudioCiudad.value.trim()
+      ciudad: el.cfgEstudioCiudad.value.trim(),
+      tatuador: el.cfgEstudioTatuador.value.trim()
     };
     guardarConfig(config);
     el.popupConfig.classList.remove('active');
     guardarEstudioEnFormulario();
     autoRegenerar();
     mostrarToast('Configuración guardada', 'ok');
+  });
+
+  // ----- Botones de borrado de la configuración -----
+  function borrarConfig(opciones, mensaje) {
+    var config = cargarConfig();
+    Object.keys(opciones).forEach(function (clave) {
+      if (opciones[clave]) delete config[clave];
+    });
+    guardarConfig(config);
+    el.popupConfig.classList.remove('active');
+    guardarEstudioEnFormulario();
+    autoRegenerar();
+    mostrarToast(mensaje, 'ok');
+  }
+  el.btnBorrarEstudio.addEventListener('click', function () {
+    borrarConfig({ estudio: true, secciones: true }, 'Datos del establecimiento borrados');
+  });
+  el.btnBorrarScript.addEventListener('click', function () {
+    borrarConfig({ url: true }, 'Configuración de Apps Script borrada');
+  });
+  el.btnBorrarTodo.addEventListener('click', function () {
+    if (!window.confirm('¿Seguro que quieres borrar TODA la configuración guardada en este navegador?')) return;
+    borrarConfig({ estudio: true, url: true, secciones: true }, 'Configuración borrada por completo');
   });
 
   [el.popupNombre, el.popupConfig].forEach(function (modal) {

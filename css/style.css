@@ -68,10 +68,12 @@ body {
 
 .main-container {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  /* En escritorio: formulario a la izquierda (ancho cómodo) y la vista
+     previa ocupando todo el ancho restante de la derecha. */
+  grid-template-columns: minmax(360px, 480px) 1fr;
   gap: 24px;
   padding: 24px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   align-items: start;
 }
@@ -348,6 +350,39 @@ body {
 
 .modal-actions .btn {
   flex: 0 0 auto;
+}
+
+/* Zona de borrado de la configuración */
+.config-danger {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px dashed #fca5a5;
+  border-radius: 10px;
+  background: #fff5f5;
+}
+.config-danger .cfg-label {
+  color: #dc2626;
+}
+.danger-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-danger {
+  width: 100%;
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.btn-danger:hover,
+.btn-danger:focus {
+  background: #fee2e2;
+  border-color: #ef4444;
 }
 
 /* Toast */
