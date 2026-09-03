@@ -1,0 +1,11 @@
+# Archivos locales de prueba (no se suben)
+iniciar.bat
+servidor.ps1
+
+# PDFs de ejemplo / datos sensibles
+*.pdf
+!**/assets/**/*.pdf
+
+# Sistema
+Thumbs.db
+.DS_Store

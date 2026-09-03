@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Consentimiento</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Formulario de Consentimiento</h1>
+    <div class="topbar-actions">
+      <button id="btnConfig" class="btn btn-config" title="Configuración">⚙ Configuración</button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Card: formulario -->
+    <section class="form-card">
+      <h2>Documento</h2>
+
+      <div class="field">
+        <label for="tituloDoc">Título del documento</label>
+        <input type="text" id="tituloDoc" placeholder="Consentimiento informado para tatuaje" autocomplete="off">
+      </div>
+
+      <h2>Datos del establecimiento</h2>
+
+      <div class="field">
+        <label for="estudio">Nombre del estudio</label>
+        <input type="text" id="estudio" placeholder="Nombre del estudio" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" placeholder="Dirección completa" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="telEstudio">Teléfono / Contacto</label>
+        <input type="tel" id="telEstudio" placeholder="Teléfono o email" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="tatuador">Tatuador/a (nombre y apellidos)</label>
+        <input type="text" id="tatuador" placeholder="Nombre del profesional" autocomplete="off">
+      </div>
+
+      <h2>Datos del cliente</h2>
+
+      <div class="field">
+        <label for="nombreCompleto">Nombre completo</label>
+        <input type="text" id="nombreCompleto" placeholder="Nombre y apellidos" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="dni">DNI / NIE / Pasaporte</label>
+        <input type="text" id="dni" placeholder="12345678A" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Fecha de nacimiento</label>
+        <div class="fecha-row">
+          <select id="nacDia" aria-label="Día"><option value="">Día</option></select>
+          <select id="nacMes" aria-label="Mes"><option value="">Mes</option></select>
+          <select id="nacAnio" aria-label="Año"><option value="">Año</option></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="dirCliente">Dirección completa</label>
+        <input type="text" id="dirCliente" placeholder="Calle, ciudad, código postal" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" placeholder="600 000 000" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="cliente@email.com" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="zonaTatuaje">Zona del tatuaje</label>
+        <input type="text" id="zonaTatuaje" placeholder="Ej. Antebrazo izquierdo" autocomplete="off">
+      </div>
+
+      <h2>Detalles del procedimiento / tatuaje</h2>
+
+      <div class="field">
+        <label for="diseno">Descripción / concepto del diseño</label>
+        <input type="text" id="diseno" placeholder="Descripción del diseño o dibujo" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="tintas">Tintas / pigmentos (nº de lote)</label>
+        <input type="text" id="tintas" placeholder="Ej. Negro - Lote 12A" autocomplete="off">
+      </div>
+
+      <h2>Declaración de salud</h2>
+      <p class="hint">Marque con una X las casillas para declarar que:</p>
+
+      <label class="check">
+        <input type="checkbox" id="salud1">
+        <span>No padezco enfermedades infecciosas transmisibles por sangre (VIH, Hepatitis B/C, etc.).</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud2">
+        <span>No sufro problemas de coagulación ni tomo medicamentos anticoagulantes.</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud3">
+        <span>No tengo alergias conocidas a metales, tintas, látex o antisépticos.</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud4">
+        <span>No padezco afecciones de la piel en la zona a tatuar (psoriasis, eccemas, queloides, etc.).</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud5">
+        <span>No estoy embarazada ni en periodo de lactancia.</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud6">
+        <span>No sufro enfermedades cardíacas, epilepsia o diabetes (o están controladas).</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="salud7">
+        <span>No estoy bajo los efectos de alcohol, drogas o medicamentos que alteren mis capacidades.</span>
+      </label>
+
+      <p class="hint">Declaración adicional (opcional)</p>
+      <textarea id="declaracionExtra" rows="2" placeholder="Observaciones médicas o particulares…" autocomplete="off"></textarea>
+
+      <label class="check">
+        <input type="checkbox" id="cuidados">
+        <span>He recibido y comprendido las instrucciones de cuidados posteriores.</span>
+      </label>
+
+      <h2>Firma</h2>
+
+      <div class="field">
+        <label for="ciudad">Lugar / Ciudad de firma</label>
+        <input type="text" id="ciudad" placeholder="Ej. Madrid" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Firma del cliente</label>
+        <div class="firma-wrapper">
+          <canvas id="firmaCanvas"></canvas>
+          <button id="btnLimpiarFirma" class="btn btn-small" type="button">Limpiar firma</button>
+        </div>
+        <p class="hint">Firma con el ratón o el dedo sobre el recuadro.</p>
+      </div>
+
+      <div class="field">
+        <label>Firma del profesional / tatuador</label>
+        <div class="firma-wrapper">
+          <canvas id="firmaProfCanvas"></canvas>
+          <button id="btnLimpiarFirmaProf" class="btn btn-small" type="button">Limpiar firma</button>
+        </div>
+        <p class="hint">Firma del profesional.</p>
+      </div>
+    </section>
+
+    <!-- Card: vista previa del documento -->
+    <section class="preview-card">
+      <h2>Vista previa</h2>
+      <div id="pdfContainer" class="pdf-container">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+
+      <!-- Acción principal justo debajo del visor -->
+      <div class="actions">
+        <button id="btnGuardar" class="btn btn-primary" disabled>💾 Guardar PDF</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Popup: nombre del fichero + opciones de guardado -->
+  <div id="popupNombre" class="modal">
+    <div class="modal-box">
+      <h3>Guardar PDF</h3>
+      <p>Escribe el nombre del fichero:</p>
+      <input type="text" id="nombreFichero" placeholder="consentimiento_cliente.pdf">
+
+      <p class="cfg-label">¿Cómo quieres guardarlo?</p>
+      <div class="save-options">
+        <button type="button" class="btn save-opt" data-op="download">⬇️ Descargar en el dispositivo</button>
+        <button type="button" class="btn save-opt" data-op="drive">☁️ Subir a Google Drive</button>
+        <button type="button" class="btn save-opt" data-op="both">💾 Guardar y subir a Drive</button>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnCancelarNombre" class="btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup: configuración -->
+  <div id="popupConfig" class="modal">
+    <div class="modal-box">
+      <h3>Configuración</h3>
+
+      <p class="cfg-label">Datos del establecimiento (se guardan permanentemente)</p>
+      <input type="text" id="cfgEstudioNombre" placeholder="Nombre del estudio">
+      <input type="text" id="cfgEstudioDireccion" placeholder="Dirección">
+      <input type="text" id="cfgEstudioTelefono" placeholder="Teléfono / Contacto">
+      <input type="text" id="cfgEstudioCiudad" placeholder="Ciudad">
+
+      <p class="cfg-label">Apps Script (destino de los PDFs)</p>
+      <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/XXXXX/exec">
+
+      <p class="hint">La configuración se guarda de forma permanente. El resto de datos se borran al recargar la página.</p>
+      <div class="modal-actions">
+        <button id="btnCancelarConfig" class="btn">Cancelar</button>
+        <button id="btnGuardarConfig" class="btn btn-primary">Guardar configuración</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Librerías: pdf-lib (generar el péDv), SignaturePad -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
