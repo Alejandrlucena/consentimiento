@@ -1,11 +1,21 @@
-# Archivos locales de prueba (no se suben)
+# ============================================================
+# .gitignore — Consentimiento de Tatuajes (GitHub Pages)
+# Los archivos de esta lista NO se suben al repositorio.
+# ============================================================
+
+# ---- Archivos locales de prueba (no forman parte de la web) ----
 iniciar.bat
 servidor.ps1
 
-# PDFs de ejemplo / datos sensibles
-*.pdf
-!**/assets/**/*.pdf
+# ---- Backup local del proyecto (NUNCA subir a GitHub) ----
+# La carpeta 'backup' contiene copias del proyecto y el context del
+# chat. Puede incluir datos privados; mantenerla fuera del repo.
+backup/
+context.txt
 
-# Sistema
+# ---- PDFs de ejemplo (el PDF real se genera desde el código) ----
+*.pdf
+
+# ---- Sistema / SO ----
 Thumbs.db
 .DS_Store

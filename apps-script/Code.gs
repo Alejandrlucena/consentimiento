@@ -3,15 +3,42 @@
  * Punto de entrada del Web App que recibe los PDFs generados desde la web
  * estática (GitHub Pages) y los guarda en una carpeta de Google Drive.
  *
- * IMPORTANTE: nada de IDs ni URLs hardcodeados (para permitir cambiar de
- * entorno de test a producción sin tocar código). La carpeta de destino se
- * configura mediante ScriptProperties (ver función setupFolder).
+ * =====================================================================
+ *  GUÍA RÁPIDA DE DESPLIEGUE (paso a paso)
+ * =====================================================================
+ *  1) Crea el proyecto
+ *     - Ve a https://script.google.com → "Proyecto nuevo".
+ *     - Copia TODO el contenido de este archivo (Code.gs) en el editor.
+ *     - Copia también apps-script/appsscript.json al proyecto (menú
+ *       "Vista" → "Mostrar archivo de manifiesto" → pega su contenido,
+ *       o usa "Editor/Project Settings" para editar el manifiesto).
  *
- * Despliegue:
- *   - Menú "Implementar" → "Nueva implementación" → tipo "Aplicación web".
- *   - "Ejecutar como": Tú (tu cuenta).
- *   - "Quién tiene acceso": Cualquier persona.
- *   - Copia la URL /exec y pégala en "⚙ Configuración" de la web.
+ *  2) Configura la carpeta de Drive donde se guardarán los PDFs
+ *     - Pega en el editor la función setupFolder con el ID de tu carpeta:
+ *           setupFolder('ID_DE_LA_CARPETA_DE_DRIVE')
+ *       y pulsa "Ejecutar". El ID es el tramo de la URL de la carpeta:
+ *           https://drive.google.com/drive/folders/<AQUI_EL_ID>
+ *     - (Este ID queda en ScriptProperties y se puede cambiar sin tocar
+ *       el repositorio ni volver a desplegar.)
+ *
+ *  3) Despliega como Aplicación Web
+ *     - Botón azul "Implementar" → "Nueva implementación".
+ *     - Tipo: "Aplicación web".
+ *     - "Descripción": p. ej. "Subir PDFs de consentimiento".
+ *     - "Ejecutar como": TU cuenta (fundamental para el CORS).
+ *     - "Quién tiene acceso": "Cualquier persona" (imprescindible para
+ *       que la web pública pueda llamarlo).
+ *     - "Implementar" y copia la URL que termina en /exec.
+ *
+ *  4) Conecta la web al Web App
+ *     - En la web (GitHub Pages), pulsa "⚙ Configuración".
+ *     - Pega la URL /exec en el campo "Apps Script".
+ *     - Guardar. La URL queda en el localStorage del navegador.
+ *
+ *  IMPORTANTE: nada de IDs ni URLs hardcodeados en el repositorio (para
+ *  poder cambiar de entorno de test a producción sin tocar código).
+ *  La carpeta de destino se configura mediante ScriptProperties.
+ * =====================================================================
  */
 
 /**
@@ -61,8 +88,22 @@ function doGet() {
 
 /**
  * POST: recibe el PDF en Base64 y lo crea en la carpeta de destino.
- * El cliente envía un JSON como texto plano (Application/JSON no lo permite
- * el CORS de Apps Script), por lo que se parsea e.postData.contents.
+ *
+ * El cliente (js/script.js) envía un JSON como texto plano. No se usa
+ * Content-Type: application/json porque el CORS de Apps Script solo
+ * permite algunos tipos; por eso el JSON viaja en e.postData.contents
+ * como texto y aquí se hace JSON.parse.
+ *
+ * Contrato de datos esperados en el body:
+ *   {
+ *     "fileName": "nombre_del_archivo.pdf",   // opcional (si no, usa fecha)
+ *     "fileData": "BASE64_DEL_PDF",           // obligatorio
+ *     "mimeType": "application/pdf"            // opcional (por defecto PDF)
+ *   }
+ *
+ * Respuestas (JSON):
+ *   - 200 { status:'success', message, fileUrl, fileName }
+ *   - 500 { status:'error', message, error }
  */
 function doPost(e) {
   try {
