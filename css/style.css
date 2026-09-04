@@ -73,7 +73,7 @@ body {
 
 .main-container {
   display: grid;
-  /* En escritorio: formulario a la izquierda (ancho c├│modo) y la vista
+  /* En escritorio: formulario a la izquierda (ancho cómodo) y la vista
      previa a la derecha compartiendo el ancho restante. Cada columna tiene
      su altura natural; 'start' alinea sus topes y evita estirar el preview
      cuando se despliegan secciones del formulario. */
@@ -97,7 +97,7 @@ body {
 
 /*
   La vista previa queda fija (sticky) bajo la barra superior mientras haces
-  scroll por la p├ígina. As├¡, en secciones bajas del formulario (Salud, Firma)
+  scroll por la página. Así, en secciones bajas del formulario (Salud, Firma)
   el preview sigue siempre visible a la derecha y no se pierde de vista.
   'align-self: start' mantiene su tope alineado con el del formulario.
 */
@@ -143,7 +143,7 @@ body {
   min-height: 50px;
 }
 
-/* "Declaraci├│n adicional": a juego con los recuadros de firma */
+/* "Declaración adicional": a juego con los recuadros de firma */
 #declaracionExtra {
   display: block;
   width: 100%;
@@ -291,7 +291,7 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* Vista previa multi-p├ígina: las p├íginas A4 se apilan verticalmente */
+/* Vista previa multi-página: las páginas A4 se apilan verticalmente */
 .preview-wrap {
   display: flex;
   flex-direction: column;
@@ -384,7 +384,7 @@ body {
   flex: 0 0 auto;
 }
 
-/* Zona de borrado de la configuraci├│n */
+/* Zona de borrado de la configuración */
 .config-danger {
   margin-top: 18px;
   padding: 12px 14px;
@@ -444,7 +444,7 @@ body {
 .toast.error { background: #dc2626; }
 
 @media (max-width: 900px) {
-  /* M├│vil/tablet: una sola columna con scroll de p├ígina normal,
+  /* Móvil/tablet: una sola columna con scroll de página normal,
      sin paneles fijos ni preview sticky. */
   .main-container {
     grid-template-columns: 1fr;
@@ -471,7 +471,7 @@ body {
   }
 }
 
-/* M├│vil: cada secci├│n colapsable debe verse como un bot├│n en relieve */
+/* Móvil: cada sección colapsable debe verse como un botón en relieve */
 @media (max-width: 600px) {
   details.section {
     border-radius: 14px;
@@ -494,7 +494,7 @@ body {
   }
 }
 
-/* Tablet Android: asegurar zonas t├íctiles y evitar zoom */
+/* Tablet Android: asegurar zonas táctiles y evitar zoom */
 @media (pointer: coarse) {
   body {
     -webkit-tap-highlight-color: transparent;
@@ -540,7 +540,7 @@ input, select, textarea {
   background: #eff6ff;
 }
 
-/* Secciones colapsables del formulario (acorde├│n) */
+/* Secciones colapsables del formulario (acordeón) */
 details.section {
   border: 1px solid #e2e8f0;
   border-radius: 12px;

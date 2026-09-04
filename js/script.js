@@ -20,13 +20,13 @@
   }
 
   // ---------------------------------------------------------------------
-  // Campos din├ímicos inline. Cada hueco se borra (rect├íngulo blanco de las
+  // Campos dinámicos inline. Cada hueco se borra (rectángulo blanco de las
   // dimensiones exactas de los guiones/ellipsis de la plantilla) y el valor
-  // se escribe justo a continuaci├│n de la palabra est├ítica, en el mismo
-  // rengl├│n. Coordenadas en PUNTOS (top-down para el rect de borrado).
-  //  - x0,x1 : l├¡mites del hueco (pts)
-  //  - yTop,yBot : alto y bajo del rengl├│n en top-down (pts)
-  //  - size, minSize : tama├▒o de fuente base / m├¡nimo tras auto-ajuste
+  // se escribe justo a continuación de la palabra estática, en el mismo
+  // renglón. Coordenadas en PUNTOS (top-down para el rect de borrado).
+  //  - x0,x1 : límites del hueco (pts)
+  //  - yTop,yBot : alto y bajo del renglón en top-down (pts)
+  //  - size, minSize : tamaño de fuente base / mínimo tras auto-ajuste
   // ---------------------------------------------------------------------
   var FIELDS = [
     { id: 'nombre',  label: 'nombreCompleto',  x0: 79.5,  x1: 319.5, yTop: 82.7,  yBot: 91.6,  size: 8, minSize: 6 },
@@ -39,7 +39,7 @@
     { id: 'rgpdTelefono', label: 'rgpdTelefono', x0: 198.4, x1: 342.4, yTop: 746.1, yBot: 752.8, size: 6, minSize: 4 }
   ];
 
-  // Huellas de firma (top-down) + l├¡neas de datos bajo cada firma.
+  // Huellas de firma (top-down) + líneas de datos bajo cada firma.
   var SIG_CLIENT = { canvas: 'firmaCanvas', imgX: 110, imgY: 620, imgW: 170, imgH: 42 };
   var SIG_CENTER = { canvas: 'firmaProfCanvas', imgX: 413, imgY: 620, imgW: 160, imgH: 42 };
   var DAT_CLIENT = [
