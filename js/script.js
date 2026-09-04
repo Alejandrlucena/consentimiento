@@ -2,84 +2,148 @@
   'use strict';
 
   var CONFIG_KEY = 'consent_config';
+  var SCALE = 2.0;
+  var PAGE_W = 612;
+  var PAGE_H = 792;
+  var INSET = 2.0; // margen horizontal del valor dentro del hueco (pts)
 
-  // ---------- Referencias a elementos ----------
+  // ---------------------------------------------------------------------
+  // Campos dinámicos inline. Cada hueco se borra (rectángulo blanco de las
+  // dimensiones exactas de los guiones/ellipsis de la plantilla) y el valor
+  // se escribe justo a continuación de la palabra estática, en el mismo
+  // renglón. Coordenadas en PUNTOS (top-down para el rect de borrado).
+  //  - x0,x1 : límites del hueco (pts)
+  //  - yTop,yBot : alto y bajo del renglón en top-down (pts)
+  //  - size, minSize : tamaño de fuente base / mínimo tras auto-ajuste
+  // ---------------------------------------------------------------------
+  var FIELDS = [
+    { id: 'nombre',  label: 'nombreCompleto',  x0: 79.5,  x1: 319.5, yTop: 82.7,  yBot: 91.6,  size: 8, minSize: 6 },
+    { id: 'dni',     label: 'dni',             x0: 369.0, x1: 578.0, yTop: 82.7,  yBot: 91.6,  size: 8, minSize: 6 },
+    { id: 'estudio', label: 'estudio',         x0: 329.7, x1: 378.6, yTop: 101.0, yBot: 108.8, size: 7, minSize: 4.5 },
+    { id: 'rgpdResponsable', label: 'rgpdResponsable', x0: 274.8, x1: 364.8, yTop: 718.5, yBot: 725.2, size: 6, minSize: 4 },
+    { id: 'rgpdCif', label: 'rgpdCif',         x0: 390.8, x1: 468.8, yTop: 718.5, yBot: 725.2, size: 6, minSize: 4 },
+    { id: 'rgpdDomicilio', label: 'rgpdDomicilio', x0: 30.0, x1: 180.0, yTop: 725.4, yBot: 732.1, size: 6, minSize: 4 },
+    { id: 'rgpdCorreo', label: 'rgpdCorreo',   x0: 60.7,  x1: 150.7, yTop: 746.1, yBot: 752.8, size: 6, minSize: 4 },
+    { id: 'rgpdTelefono', label: 'rgpdTelefono', x0: 198.4, x1: 342.4, yTop: 746.1, yBot: 752.8, size: 6, minSize: 4 }
+  ];
+
+  // Huellas de firma (top-down) + líneas de datos bajo cada firma.
+  var SIG_CLIENT = { canvas: 'firmaCanvas', imgX: 110, imgY: 620, imgW: 170, imgH: 42 };
+  var SIG_CENTER = { canvas: 'firmaProfCanvas', imgX: 413, imgY: 620, imgW: 160, imgH: 42 };
+  var DAT_CLIENT = [
+    { x0: 110, x1: 290, yBase: 674, size: 7, minSize: 5, get: function () { return 'Nombre completo: ' + getInputValue('nombreCompleto'); } },
+    { x0: 110, x1: 290, yBase: 684, size: 7, minSize: 5, get: function () { return 'DNI/NIE: ' + getInputValue('dni'); } },
+    { x0: 110, x1: 290, yBase: 694, size: 7, minSize: 5, get: function () { return 'Firma: ' + ahora(); } }
+  ];
+  var DAT_CENTER = [
+    { x0: 413, x1: 573, yBase: 674, size: 7, minSize: 5, get: function () { return 'Centro: ' + getInputValue('estudio'); } },
+    { x0: 413, x1: 573, yBase: 684, size: 7, minSize: 5, get: function () { return 'CIF/DNI rep.: ' + getInputValue('rgpdCif'); } }
+  ];
+
   var el = {
     estudio: document.getElementById('estudio'),
-    direccion: document.getElementById('direccion'),
-    telEstudio: document.getElementById('telEstudio'),
-    tatuador: document.getElementById('tatuador'),
     nombre: document.getElementById('nombreCompleto'),
     dni: document.getElementById('dni'),
-    titulo: document.getElementById('tituloDoc'),
-    dirCliente: document.getElementById('dirCliente'),
-    diseno: document.getElementById('diseno'),
-    tintas: document.getElementById('tintas'),
-    nacDia: document.getElementById('nacDia'),
-    nacMes: document.getElementById('nacMes'),
-    nacAnio: document.getElementById('nacAnio'),
-    telefono: document.getElementById('telefono'),
-    email: document.getElementById('email'),
-    ciudad: document.getElementById('ciudad'),
-    zonaTatuaje: document.getElementById('zonaTatuaje'),
-    salud1: document.getElementById('salud1'),
-    salud2: document.getElementById('salud2'),
-    salud3: document.getElementById('salud3'),
-    salud4: document.getElementById('salud4'),
-    salud5: document.getElementById('salud5'),
-    salud6: document.getElementById('salud6'),
-    salud7: document.getElementById('salud7'),
-    cuidados: document.getElementById('cuidados'),
-    declaracionExtra: document.getElementById('declaracionExtra'),
+    rgpdResponsable: document.getElementById('rgpdResponsable'),
+    rgpdCif: document.getElementById('rgpdCif'),
+    rgpdDomicilio: document.getElementById('rgpdDomicilio'),
+    rgpdCorreo: document.getElementById('rgpdCorreo'),
+    rgpdTelefono: document.getElementById('rgpdTelefono'),
     firmaCanvas: document.getElementById('firmaCanvas'),
     btnLimpiarFirma: document.getElementById('btnLimpiarFirma'),
     firmaProfCanvas: document.getElementById('firmaProfCanvas'),
     btnLimpiarFirmaProf: document.getElementById('btnLimpiarFirmaProf'),
     btnGuardar: document.getElementById('btnGuardar'),
-    pdfContainer: document.getElementById('pdfContainer'),
-    previewCanvas: document.getElementById('previewCanvas'),
+    previewWrap: document.getElementById('previewWrap'),
     btnConfig: document.getElementById('btnConfig'),
+    popupConfig: document.getElementById('popupConfig'),
+    configUrl: document.getElementById('configUrl'),
+    btnCancelarConfig: document.getElementById('btnCancelarConfig'),
+    btnGuardarConfig: document.getElementById('btnGuardarConfig'),
+    btnBorrarEstudio: document.getElementById('btnBorrarEstudio'),
+    btnBorrarScript: document.getElementById('btnBorrarScript'),
+    btnBorrarTodo: document.getElementById('btnBorrarTodo'),
     popupNombre: document.getElementById('popupNombre'),
     nombreFichero: document.getElementById('nombreFichero'),
     btnCancelarNombre: document.getElementById('btnCancelarNombre'),
     saveOpts: Array.prototype.slice.call(document.querySelectorAll('.save-opt')),
-    popupConfig: document.getElementById('popupConfig'),
-    configUrl: document.getElementById('configUrl'),
+    toast: document.getElementById('toast'),
     cfgEstudioNombre: document.getElementById('cfgEstudioNombre'),
     cfgEstudioDireccion: document.getElementById('cfgEstudioDireccion'),
     cfgEstudioTelefono: document.getElementById('cfgEstudioTelefono'),
-    cfgEstudioCiudad: document.getElementById('cfgEstudioCiudad'),
-    btnCancelarConfig: document.getElementById('btnCancelarConfig'),
-    btnGuardarConfig: document.getElementById('btnGuardarConfig'),
-    cfgEstudioTatuador: document.getElementById('cfgEstudioTatuador'),
-    btnBorrarEstudio: document.getElementById('btnBorrarEstudio'),
-    btnBorrarScript: document.getElementById('btnBorrarScript'),
-    btnBorrarTodo: document.getElementById('btnBorrarTodo'),
-    toast: document.getElementById('toast')
+    cfgEstudioCiudad: document.getElementById('cfgEstudioCiudad')
   };
 
-  var SALUD_IDS = ['salud1', 'salud2', 'salud3', 'salud4', 'salud5', 'salud6', 'salud7'];
-  var SALUD_TEXT = [
-    'No padezco enfermedades infecciosas transmisibles por sangre (VIH, Hepatitis B/C, etc.).',
-    'No sufro problemas de coagulación ni tomo medicamentos anticoagulantes.',
-    'No tengo alergias conocidas a metales, tintas, látex o antisépticos.',
-    'No padezco afecciones de la piel en la zona a tatuar (psoriasis, eccemas, queloides, etc.).',
-    'No estoy embarazada ni en periodo de lactancia.',
-    'No sufro enfermedades cardíacas, epilepsia o diabetes (o están controladas).',
-    'No estoy bajo los efectos de alcohol, drogas o medicamentos que alteren mis capacidades.'
-  ];
-  var GARANTIAS = [
-    'He podido formular todas las preguntas y he comprendido la información sobre el procedimiento.',
-    'Seré informado de los cuidados posteriores y de los posibles riesgos y complicaciones.',
-    'Autorizo el tratamiento de mis datos personales con la finalidad de la prestación del servicio.',
-    'Conforme al RGPD, el responsable del tratamiento de mis datos es el establecimiento indicado y puedo ejercer mis derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad dirigiéndome por escrito a dicho responsable.',
-    'He recibido y comprendido las instrucciones de cuidados posteriores (higiene, protección solar, hidratación y seguimiento de la zona tatuada).'
-  ];
+  var _mctx = null;
+  function measureCtx() {
+    if (!_mctx) {
+      var c = document.createElement('canvas');
+      _mctx = c.getContext('2d');
+    }
+    return _mctx;
+  }
 
-  var signaturePad = null;
-  var signaturePadProf = null;
+  function fitSize(text, size, minSize, maxW) {
+    if (!text) return size;
+    var ctx = measureCtx();
+    var s = size;
+    while (s >= minSize) {
+      ctx.font = s + 'px Helvetica, Arial, sans-serif';
+      if (ctx.measureText(text).width <= maxW) return s;
+      s -= 0.5;
+    }
+    return minSize;
+  }
 
-  // ---------- Configuración persistente ----------
+  function canvasToPngDataUrl(c) {
+    if (c.toDataURL) {
+      try { return c.toDataURL('image/png'); } catch (e) {}
+    }
+    var cn = document.createElement('canvas');
+    cn.width = c.width;
+    cn.height = c.height;
+    cn.getContext('2d').drawImage(c, 0, 0);
+    return cn.toDataURL('image/png');
+  }
+
+  function blobToBase64(blob, cb) {
+    blob.arrayBuffer().then(function (buf) {
+      var b = new Uint8Array(buf);
+      var s = '';
+      for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+      cb(btoa(s));
+    }).catch(function () { cb(null); });
+  }
+
+  function b64ToBytes(b64) {
+    var bin = atob(b64);
+    var a = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return a;
+  }
+
+  function getInputValue(label) {
+    var inp = document.getElementById(label);
+    return inp ? inp.value.trim() : '';
+  }
+
+  function ahora() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() +
+      ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function firmaVacia(canvas) {
+    if (!canvas || !canvas.width || !canvas.height) return true;
+    var ctx = canvas.getContext('2d');
+    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    for (var i = 0; i < data.length; i += 4) {
+      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) return false;
+    }
+    return true;
+  }
+
   function cargarConfig() {
     try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; }
     catch (e) { return {}; }
@@ -88,13 +152,11 @@
     localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
   }
 
-  // ---------- Estado colapsado/expandido de las secciones del formulario ----------
-  var secciones = document.querySelectorAll('details.section');
+  var secciones = Array.prototype.slice.call(document.querySelectorAll('details.section'));
   function recogerEstadoSecciones() {
-    var res = {}, i;
-    for (i = 0; i < secciones.length; i++) {
-      var sum = secciones[i].querySelector('summary');
-      res[sum.textContent.trim()] = secciones[i].hasAttribute('open');
+    var res = {};
+    for (var i = 0; i < secciones.length; i++) {
+      res[secciones[i].querySelector('summary').textContent.trim()] = secciones[i].hasAttribute('open');
     }
     return res;
   }
@@ -106,536 +168,232 @@
   function aplicarEstadoSecciones() {
     var config = cargarConfig();
     var guardadas = config.secciones || {};
-    var i;
-    for (i = 0; i < secciones.length; i++) {
-      var sum = secciones[i].querySelector('summary');
-      var clave = sum.textContent.trim();
+    for (var i = 0; i < secciones.length; i++) {
+      var clave = secciones[i].querySelector('summary').textContent.trim();
       if (guardadas[clave] === true) secciones[i].setAttribute('open', '');
       else if (guardadas[clave] === false) secciones[i].removeAttribute('open');
     }
   }
-  function initEstadoSecciones() {
-    var i;
-    for (i = 0; i < secciones.length; i++) {
-      secciones[i].addEventListener('toggle', guardarEstadoSecciones);
-    }
-  }
 
-  function guardarEstudioEnFormulario() {
-    var config = cargarConfig();
-    var estudio = config.estudio || {};
-    el.estudio.value = estudio.nombre || '';
-    el.direccion.value = estudio.direccion || '';
-    el.telEstudio.value = estudio.telefono || '';
-    el.ciudad.value = estudio.ciudad || '';
-    el.tatuador.value = estudio.tatuador || '';
-  }
-
-  function limpiarFormularioNoEstudio() {
-    ['nombre', 'dni', 'telefono', 'email', 'zonaTatuaje'].forEach(function (id) {
-      if (el[id]) el[id].value = '';
-    });
-    if (el.nacDia) el.nacDia.value = 'Dia';
-    if (el.nacMes) el.nacMes.value = 'Mes';
-    if (el.nacAnio) el.nacAnio.value = 'Anio';
-    if (el.declaracionExtra) el.declaracionExtra.value = '';
-    SALUD_IDS.forEach(function (id) { if (el[id]) el[id].checked = false; });
-    if (signaturePad) signaturePad.clear();
-    if (signaturePadProf) signaturePadProf.clear();
-  }
-
-  // ---------- Fechas ----------
-  function pad2(n) { return String(n).padStart(2, '0'); }
-
-  function rellenarSelectFecha(diaSel, mesSel, anioSel, opciones) {
-    var i, opt;
-    opt = document.createElement('option'); opt.value = 'Dia'; opt.textContent = 'Día'; diaSel.appendChild(opt);
-    opt = document.createElement('option'); opt.value = 'Mes'; opt.textContent = 'Mes'; mesSel.appendChild(opt);
-    opt = document.createElement('option'); opt.value = 'Anio'; opt.textContent = 'Año'; anioSel.appendChild(opt);
-    for (i = 1; i <= 31; i++) { opt = document.createElement('option'); opt.value = i; opt.textContent = pad2(i); diaSel.appendChild(opt); }
-    for (i = 1; i <= 12; i++) { opt = document.createElement('option'); opt.value = i; opt.textContent = pad2(i); mesSel.appendChild(opt); }
-    for (i = opciones.desde; i >= opciones.hasta; i--) { opt = document.createElement('option'); opt.value = i; opt.textContent = i; anioSel.appendChild(opt); }
-    diaSel.value = 'Dia'; mesSel.value = 'Mes'; anioSel.value = 'Anio';
-  }
-
-  function initFechas() {
-    var anioActual = new Date().getFullYear();
-    rellenarSelectFecha(el.nacDia, el.nacMes, el.nacAnio, { desde: anioActual, hasta: anioActual - 100 });
-  }
-
-  function fechaNacimiento() {
-    var d = el.nacDia.value, m = el.nacMes.value, a = el.nacAnio.value;
-    if (!d || d === 'Dia') return '';
-    if (!m || m === 'Mes') return '';
-    if (!a || a === 'Anio') return '';
-    return pad2(d) + '/' + pad2(m) + '/' + a;
-  }
-
-  function fechaActual() {
-    var h = new Date();
-    return pad2(h.getDate()) + '/' + pad2(h.getMonth() + 1) + '/' + h.getFullYear();
-  }
-
-  // ---------- Firmas ----------
-  function initFirma(canvas, onEnd) {
-    var wrapper = canvas.parentElement;
-    var w = wrapper.clientWidth || 400;
-    var h = wrapper.clientHeight || 160;
-    canvas.width = w;
-    canvas.height = h;
-    // Optimiza las lecturas frecuentes (getImageData de firmaVacia)
-    canvas.getContext('2d', { willReadFrequently: true });
-    var pad = new SignaturePad(canvas, { penColor: '#000000', minWidth: 1, maxWidth: 2.5 });
-    // Renueva la vista previa en cuanto se suelta el trazo, sin esperar a otro input
-    var finish = function () { if (onEnd && !pad.isEmpty()) onEnd(); };
-    canvas.addEventListener('pointerup', finish);
-    canvas.addEventListener('touchend', finish);
-    canvas.addEventListener('mouseup', finish);
-    return pad;
-  }
-
-  function firmaVacia(canvas) {
-    var ctx = canvas.getContext('2d');
-    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    for (var i = 0; i < data.length; i += 4) {
-      var r = data[i], g = data[i + 1], b = data[i + 2];
-      if (r < 230 || g < 230 || b < 230) return false;
-    }
-    return true;
-  }
-
-  // ---------- Obtener valores ----------
-  function getVal(id) {
-    switch (id) {
-      case 'estudio':   return el.estudio.value.trim();
-      case 'direccion': return el.direccion.value.trim();
-      case 'telEstudio':return el.telEstudio.value.trim();
-      case 'tatuador':  return el.tatuador.value.trim();
-      case 'nombre':    return el.nombre.value.trim();
-      case 'dni':       return el.dni.value.trim();
-      case 'nacimiento':return fechaNacimiento();
-      case 'telefono':  return el.telefono.value.trim();
-      case 'email':     return el.email.value.trim();
-      case 'ciudad':    return el.ciudad.value.trim();
-      case 'zona':      return el.zonaTatuaje.value.trim();
-      case 'titulo':    return el.titulo ? el.titulo.value.trim() : '';
-      case 'dirCliente':return el.dirCliente ? el.dirCliente.value.trim() : '';
-      case 'diseno':    return el.diseno ? el.diseno.value.trim() : '';
-      case 'tintas':    return el.tintas ? el.tintas.value.trim() : '';
-      case 'adicional': return el.declaracionExtra ? el.declaracionExtra.value.trim() : '';
-      default:          return '';
-    }
-  }
-
-  // =============================================================================
-  // LAYOUT EN PUNTOS A4. y se mide SIEMPRE desde ARRIBA de la página.
-  //   - Vista previa: píxel = punto * SCALE (mismo sistema, sin inversión).
-  //   - PDF (pdf-lib): yPDF = A4H - yTop.
-  // Ambos comparten el mismo modelo => preiview y PDF coinciden.
-  // =============================================================================
-  var A4W = 595.28, A4H = 841.89;
-  var ML = 44, MR = 44, MT = 46;
-  var CW = A4W - ML - MR;   // ancho útil
-  var SCALE = 1.8;          // píxeles por punto para la vista previa
-
-  // cursor: yTop actual (puntos desde arriba)
-  var yC = MT;
-  var boldNormal = null;
-  var boldBold = null;
-
-  function lineH(size) { return size * 1.4; }
-
-  // Mide la anchura de un texto en puntos usando canvas (compartido con pdf).
-  var _mctx = null;
-  function measure(text, size, bold) {
-    if (!_mctx) {
-      var cc = document.createElement('canvas');
-      _mctx = cc.getContext('2d');
-    }
-    _mctx.font = (bold ? 'bold ' : '') + size + 'px Helvetica';
-    return _mctx.measureText(text).width;
-  }
-
-  function wrap(text, size, maxW) {
-    maxW = maxW || CW;
-    var words = String(text).split(' ');
-    var lines = [], cur = '';
-    for (var i = 0; i < words.length; i++) {
-      var test = cur ? cur + ' ' + words[i] : words[i];
-      if (measure(test, size) > maxW && cur) { lines.push(cur); cur = words[i]; }
-      else cur = test;
-    }
-    if (cur) lines.push(cur);
-    return lines;
-  }
-
-  function underline(n) { var i, s = ''; for (i = 0; i < n; i++) s += '___________'; return s; }
-
-  // ----- Primitivas de dibujo. Cada RENDE (canvas o pdf) implementa:
-  //   text(txt, x, yTop, size, bold)
-  //   rect(x, yTop, w, h)      (yTop = esquina superior del rect)
-  //   img(dataUrl, x, yTop, w, h)
-  function drawHeader(R) {
-    yC = MT;
-    // Título en su propio bloque (flujo en bloque: una sola línea en su altura)
-    R.text(getVal('titulo') || 'CONSENTIMIENTO INFORMADO PARA TATUAJE', ML, yC, 14, true);
-    yC += lineH(14) + 4;
-
-    // Bloque del estudio (nombre y, debajo, dirección/teléfono)
-    var estudio = getVal('estudio');
-    if (estudio) {
-      R.text(estudio, ML, yC, 12, true);
-      yC += lineH(12);
-      var info = [];
-      if (getVal('direccion')) info.push(getVal('direccion'));
-      if (getVal('telEstudio')) info.push('Tel: ' + getVal('telEstudio'));
-      if (info.length) { R.text(info.join('  ·  '), ML, yC, 8.5, false); yC += lineH(8.5); }
-    }
-    // Línea divisoria SIEMPRE debajo de todo el bloque del encabezado
-    R.line(ML, yC + 2, A4W - MR, yC + 2);
-    yC += lineH(8.5) + 6;
-  }
-
-  function title(R, txt) {
-    // margin-top: separa la sección del último dato de la sección previa
-    yC += 8;
-    R.text(txt, ML, yC, 10.5, true);
-    R.line(ML, yC + 3, A4W - MR, yC + 3);
-    yC += lineH(10.5) + 6;
-  }
-
-  function item(R, label, valor, tipo) {
-    R.text(label, ML, yC, 8.5, true);
-    var afterX = ML + measure(label, 8.5, true) + 8;
-    var p = underline(tipo === 'short' ? 2 : (tipo === 'date' ? 1 : 3));
-    R.text(valor || p, afterX, yC, 8.5, false);
-    yC += lineH(8.5) + 3;
-  }
-
-  function paragraph(R, txt, size, maxW) {
-    var lines = wrap(txt, size, maxW || CW);
-    for (var i = 0; i < lines.length; i++) {
-      R.text(lines[i], ML, yC, size, false);
-      yC += lineH(size);
-    }
-  }
-
-  function drawBody(R) {
-    // 1. Datos del cliente
-    title(R, '1. DATOS DEL CLIENTE');
-    item(R, 'Nombre completo:', getVal('nombre'), 'med');
-    item(R, 'DNI / NIE:', getVal('dni'), 'short');
-    item(R, 'Fecha de nacimiento:', getVal('nacimiento'), 'date');
-    item(R, 'Dirección completa:', getVal('dirCliente'), 'med');
-    item(R, 'Teléfono:', getVal('telefono'), 'short');
-    item(R, 'Email:', getVal('email'), 'med');
-
-    // 2. Detalles del procedimiento / tatuaje
-    title(R, '2. DETALLES DEL PROCEDIMIENTO / TATUAJE');
-    item(R, 'Zona del tatuaje:', getVal('zona'), 'med');
-    item(R, 'Descripción / concepto del diseño:', getVal('diseno'), 'med');
-    item(R, 'Tintas / pigmentos (nº lote):', getVal('tintas'), 'med');
-
-    // 3. Profesional
-    title(R, '3. PROFESIONAL QUE REALIZA EL TATUAJE');
-    item(R, 'Tatuador/a:', getVal('tatuador'), 'med');
-
-    // 4. Salud
-    title(R, '4. DECLARACIÓN DE SALUD');
-    R.text('Marque con una X las casillas que correspondan a su caso:', ML, yC, 8, false);
-    yC += lineH(8) + 6;
-    var box = 10;                 // tamaño del recuadro de la casilla
-    var fsalud = 8;               // tamaño del texto de cada punto
-    for (var s = 0; s < 7; s++) {
-      var bx = ML + 2;
-      // Centra verticalmente la casilla con la línea de texto (gap uniforme)
-      var by = yC + (lineH(fsalud) - box) / 2;
-      R.rect(bx, by, box, box);
-      if (el[SALUD_IDS[s]] && el[SALUD_IDS[s]].checked) {
-        // X centrada en la casilla: la Y de text es el BASELINE, así que se desplaza
-        // hacia el centro vertical de la caja para no quedar "flotando" arriba.
-        var fsx = 8;
-        R.text('X', bx + (box - fsx * 0.6) / 2, by + box / 2 + fsx * 0.4, fsx, true);
-      }
-      R.text(SALUD_TEXT[s], bx + box + 8, yC, fsalud, false);
-      yC += lineH(fsalud) + 4;
-    }
-
-    // 5. Adicional
-    title(R, '5. DECLARACIÓN ADICIONAL');
-    paragraph(R, getVal('adicional') || 'Sin observaciones.', 8.5);
-
-    // 6. Cláusulas y protección de datos
-    title(R, '6. CLÁUSULAS Y PROTECCIÓN DE DATOS');
-    for (var g = 0; g < GARANTIAS.length; g++) {
-      var marca = '\u2022  ';
-      if (g === GARANTIAS.length - 1) {
-        // Usamos corchetes ASCII (Helvetica estándar) en vez de ☐/☑, que pdf-lib
-        // no puede dibujar con la fuente estándar (provoca "Error guardando el PDF").
-        marca = (el.cuidados && el.cuidados.checked) ? '[X] ' : '[ ] ';
-      }
-      // Las frases largas (RGPD) se envuelven; las cortas van en una sola línea
-      var lines = wrap(marca + GARANTIAS[g], 8, CW);
-      for (var li = 0; li < lines.length; li++) {
-        R.text(lines[li], ML, yC, 8, false);
-        yC += lineH(8);
-      }
-    }
-
-    // 7. Firma
-    title(R, '7. FIRMA Y FECHA');
-    item(R, 'Lugar y fecha:', ((getVal('ciudad') || '_______________') + ', ' + fechaActual()), 'med');
-    yC += 6;
-
-    var fw = CW * 0.42;
-    var fh = 46;
-    var x1 = ML;
-    var x2 = ML + CW * 0.5;
-    var yBox = yC;
-    R.rect(x1, yBox, fw, fh);
-    R.rect(x2, yBox, fw, fh);
-    if (!firmaVacia(el.firmaCanvas)) R.img(signatureToDataURL(el.firmaCanvas), x1, yBox, fw, fh);
-    if (!firmaVacia(el.firmaProfCanvas)) R.img(signatureToDataURL(el.firmaProfCanvas), x2, yBox, fw, fh);
-    // Etiquetas claramente debajo de la caja (margin-top): nunca montan el borde
-    R.text('Firma del cliente', x1 + 4, yBox + fh + 10, 8, false);
-    R.text('Firma del tatuador/a', x2 + 4, yBox + fh + 10, 8, false);
-  }
-
-  function signatureToDataURL(canvas) { return canvas.toDataURL('image/png'); }
-
-  // =============================================================================
-  // RENDER DE VISTA PREVIA (canvas) => top-down en píxeles
-  // =============================================================================
-  function px(x) { return x * SCALE; }
-
-  var canvasR = {
-    text: function (txt, x, yTop, size, bold) {
-      var ctx = el.previewCanvas.getContext('2d');
-      ctx.fillStyle = '#000000';
-      ctx.font = (bold ? 'bold ' : '') + px(size) + 'px Helvetica, Arial, sans-serif';
-      ctx.fillText(txt, px(x), px(yTop));
-    },
-    rect: function (x, yTop, w, h) {
-      var ctx = el.previewCanvas.getContext('2d');
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(px(x), px(yTop), px(w), px(h));
-    },
-    line: function (x1, yTop, x2, yTop2) {
-      var ctx = el.previewCanvas.getContext('2d');
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 0.75;
-      ctx.beginPath();
-      ctx.moveTo(px(x1), px(yTop));
-      ctx.lineTo(px(x2), px(yTop2));
-      ctx.stroke();
-    },
-    img: function (dataUrl, x, yTop, w, h) {
-      var ctx = el.previewCanvas.getContext('2d');
-      var img = new Image();
-      img.onload = function () {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(px(x), px(yTop), px(w), px(h));
-        ctx.clip();
-        ctx.drawImage(img, px(x), px(yTop), px(w), px(h));
-        ctx.restore();
-      };
-      img.src = dataUrl;
-    }
-  };
-
-  // =============================================================================
-  // RENDERPDF (pdf-lib) => y bottom-up
-  // =============================================================================
-  var pdfR = {
-    _page: null, _doc: null, _fontN: null, _fontB: null,
-    text: function (txt, x, yTop, size, bold) {
-      pdfR._page.drawText(txt, {
-        x: x,
-        y: A4H - yTop,
-        size: size,
-        font: bold ? pdfR._fontB : pdfR._fontN,
-        color: PDFLib.rgb(0, 0, 0)
-      });
-    },
-    rect: function (x, yTop, w, h) {
-      pdfR._page.drawRectangle({
-        x: x,
-        y: A4H - yTop - h,
-        width: w,
-        height: h,
-        borderColor: PDFLib.rgb(0, 0, 0),
-        borderWidth: 0.6
-      });
-    },
-    line: function (x1, yTop, x2, yTop2) {
-      pdfR._page.drawLine({
-        start: { x: x1, y: A4H - yTop },
-        end: { x: x2, y: A4H - yTop2 },
-        thickness: 0.6
-      });
-    },
-    img: function (dataUrl, x, yTop, w, h) {
-      // La firma se convierte a PNG y se incrusta en el PDF de forma asíncrona.
-      pendingImages.push(embedSignature(dataUrl, x, yTop, w, h));
-    }
-  };
-
-  // Cola de incrustación de firmas (se resuelve antes de guardar el PDF)
-  var pendingImages = [];
-
-  function embedSignature(dataUrl, x, yTop, w, h) {
-    return new Promise(function (resolve) {
-      var img = new Image();
-      img.onload = function () {
-        // embedPng pertenece al DOCUMENTO PDF, no a la página.
-        pdfR._doc.embedPng(pngFromImage(img)).then(function (png) {
-          pdfR._page.drawImage(png, { x: x, y: A4H - yTop - h, width: w, height: h });
-          resolve();
-        });
-      };
-      img.onerror = function () { resolve(); };
-      img.src = dataUrl;
+  var bgImg = null;
+  function loadBg() {
+    bgImg = document.createElement('img');
+    return new Promise(function (res, rej) {
+      bgImg.onload = res;
+      bgImg.onerror = rej;
+      bgImg.src = 'data:image/png;base64,' + TEMPLATE_PREVIEW_B64;
     });
   }
 
-  function pngFromImage(img) {
-    var c = document.createElement('canvas');
-    c.width = img.width; c.height = img.height;
-    c.getContext('2d').drawImage(img, 0, 0);
-    var dataUrl = c.toDataURL('image/png');
-    var b64 = dataUrl.split(',')[1];
-    var bin = atob(b64);
-    var arr = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    return arr;
+  function mostrarToast(msg, tipo) {
+    if (!el.toast) return;
+    el.toast.textContent = msg;
+    el.toast.className = 'toast toast-' + (tipo || '');
+    el.toast.classList.add('show');
+    clearTimeout(el.toast._t);
+    el.toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 3000);
   }
 
-  // =============================================================================
-  // PRINCIPAL
-  // =============================================================================
+  // =========================================================================
+  // VISTA PREVIA (canvas, top-down)
+  // =========================================================================
+  function previewField(ctx, f) {
+    var val = getInputValue(f.label);
+    if (!val) return;
+    var maxW = f.x1 - f.x0 - 2 * INSET;
+    var sz = fitSize(val, f.size, f.minSize, maxW);
+    // borrar hueco
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(f.x0 * SCALE, f.yTop * SCALE, (f.x1 - f.x0) * SCALE, (f.yBot - f.yTop) * SCALE);
+    // escribir valor inline
+    ctx.fillStyle = '#000000';
+    ctx.font = (sz * SCALE) + 'px Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(val, (f.x0 + INSET) * SCALE, (PAGE_H - f.yBot) * SCALE);
+  }
+
+  function previewDataLine(ctx, dl) {
+    var val = dl.get();
+    if (!val) return;
+    var sz = fitSize(val, dl.size, dl.minSize, dl.x1 - dl.x0);
+    ctx.fillStyle = '#000000';
+    ctx.font = (sz * SCALE) + 'px Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(val, dl.x0 * SCALE, dl.yBase * SCALE);
+  }
+
   function renderPreview() {
-    var c = el.previewCanvas;
-    c.width = Math.round(A4W * SCALE);
-    c.height = Math.round(A4H * SCALE);
+    el.previewWrap.textContent = '';
+    var c = document.createElement('canvas');
+    c.width = Math.round(PAGE_W * SCALE);
+    c.height = Math.round(PAGE_H * SCALE);
     var ctx = c.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, c.width, c.height);
-    yC = MT;
-    drawHeader(canvasR);
-    drawBody(canvasR);
+    if (bgImg) ctx.drawImage(bgImg, 0, 0, c.width, c.height);
+
+    for (var i = 0; i < FIELDS.length; i++) previewField(ctx, FIELDS[i]);
+
+    var sigs = [SIG_CLIENT, SIG_CENTER];
+    for (var s = 0; s < sigs.length; s++) {
+      var sq = sigs[s];
+      var sigCanvas = document.getElementById(sq.canvas);
+      if (sigCanvas && !firmaVacia(sigCanvas)) {
+        ctx.drawImage(sigCanvas, sq.imgX * SCALE, sq.imgY * SCALE, sq.imgW * SCALE, sq.imgH * SCALE);
+      }
+      var lines = sq === SIG_CLIENT ? DAT_CLIENT : DAT_CENTER;
+      for (var l = 0; l < lines.length; l++) previewDataLine(ctx, lines[l]);
+    }
+
+    el.previewWrap.appendChild(c);
     el.btnGuardar.disabled = false;
   }
 
-  function generarPDF() {
-    return PDFLib.PDFDocument.create().then(function (doc) {
-      var page = doc.addPage([A4W, A4H]);
-      return Promise.all([
-        doc.embedFont(PDFLib.StandardFonts.Helvetica),
-        doc.embedFont(PDFLib.StandardFonts.HelveticaBold)
-      ]).then(function (fonts) {
-        pdfR._doc = doc;
-        pdfR._page = page;
-        pdfR._fontN = fonts[0];
-        pdfR._fontB = fonts[1];
-        yC = MT;
-        drawHeader(pdfR);
-        drawBody(pdfR);
-        // Esperar a que se incrusten las firmas (si las hay)
-        return Promise.all(pendingImages);
-      }).then(function () {
-        return doc.save();
-      });
-    }).then(function (bytes) {
-      return new Blob([bytes], { type: 'application/pdf' });
+  // =========================================================================
+  // PDF (pdf-lib, bottom-up). y = PAGE_H - (top-down)
+  // =========================================================================
+  function pdfField(page, font, f) {
+    var val = getInputValue(f.label);
+    if (!val) return;
+    var maxW = f.x1 - f.x0 - 2 * INSET;
+    var sz = fitSize(val, f.size, f.minSize, maxW);
+    page.drawRectangle({
+      x: f.x0,
+      y: PAGE_H - f.yBot,
+      width: f.x1 - f.x0,
+      height: f.yBot - f.yTop,
+      color: PDFLib.rgb(1, 1, 1),
+      borderWidth: 0
+    });
+    page.drawText(val, {
+      x: f.x0 + INSET,
+      y: PAGE_H - f.yBot,
+      size: sz,
+      font: font,
+      color: PDFLib.rgb(0, 0, 0)
     });
   }
 
-  // Genera el Blob PDF (utilidad compartida)
-  function generarBlobPDF() {
-    pendingImages = [];
-    return generarPDF();
+  function pdfDataLine(page, font, dl) {
+    var val = dl.get();
+    if (!val) return;
+    var sz = fitSize(val, dl.size, dl.minSize, dl.x1 - dl.x0);
+    page.drawText(val, {
+      x: dl.x0,
+      y: PAGE_H - dl.yBase,
+      size: sz,
+      font: font,
+      color: PDFLib.rgb(0, 0, 0)
+    });
   }
 
-  // Descarga el Blob en el dispositivo
+  function embedSig(doc, page, sigCanvas, box) {
+    var dataUrl = canvasToPngDataUrl(sigCanvas);
+    var b64 = dataUrl.split(',')[1];
+    var pngBytes = b64ToBytes(b64);
+    return doc.embedPng(pngBytes).then(function (img) {
+      page.drawImage(img, {
+        x: box.imgX,
+        y: PAGE_H - box.imgY - box.imgH,
+        width: box.imgW,
+        height: box.imgH
+      });
+    });
+  }
+
+  function generarBlobPDF() {
+    var bytes = b64ToBytes(TEMPLATE_PDF_B64);
+    return PDFLib.PDFDocument.load(bytes).then(function (doc) {
+      return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function (font) {
+        var page = doc.getPage(0);
+
+        for (var i = 0; i < FIELDS.length; i++) pdfField(page, font, FIELDS[i]);
+
+        var sigPromises = [];
+        if (!firmaVacia(el.firmaCanvas)) {
+          sigPromises.push(embedSig(doc, page, el.firmaCanvas, SIG_CLIENT));
+        }
+        if (!firmaVacia(el.firmaProfCanvas)) {
+          sigPromises.push(embedSig(doc, page, el.firmaProfCanvas, SIG_CENTER));
+        }
+
+        var dl;
+        for (i = 0; i < DAT_CLIENT.length; i++) pdfDataLine(page, font, DAT_CLIENT[i]);
+        for (i = 0; i < DAT_CENTER.length; i++) pdfDataLine(page, font, DAT_CENTER[i]);
+
+        return Promise.all(sigPromises).then(function () { return doc.save(); });
+      });
+    }).then(function (pdfBytes) {
+      return new Blob([pdfBytes], { type: 'application/pdf' });
+    });
+  }
+
   function descargarBlob(blob, nombre) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = nombre;
-    document.body.appendChild(a); a.click();
+    a.href = url;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
     setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 300);
   }
 
-  // Sube el PDF a Google Drive vía Apps Script (payload en Base64)
   function subirADrive(blob, nombre) {
     var cfg = cargarConfig();
     if (!cfg.url || cfg.url.indexOf('http') !== 0) {
-      return Promise.reject(new Error('NO_URL'));
+      return new Promise(function (resolve, reject) { reject(new Error('NO_URL')); });
     }
     var url = cfg.url;
-    mostrarToast('Subiendo a Google Drive…', '');
+    mostrarToast('Subiendo a Google Drive\u2026', '');
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
-      reader.onload = function () {
-        var dataUrl = reader.result;            // data:application/pdf;base64,....
-        var base64 = dataUrl.split(',')[1];     // solo la parte en Base64
-        var payload = {
-          fileName: nombre,
-          fileData: base64,
-          mimeType: blob.type || 'application/pdf'
-        };
+      blobToBase64(blob, function (base64) {
+        if (!base64) { reject(new Error('No se pudo convertir el PDF')); return; }
         fetch(url, {
           method: 'POST',
           mode: 'cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            fileName: nombre,
+            fileData: base64,
+            mimeType: blob.type || 'application/pdf'
+          })
         })
           .then(function (r) {
-            // Leer siempre el cuerpo aunque el HTTP sea 4xx/5xx (Apps Script lo
-            // incluye en la respuesta aunque fetch la marque como fallida).
             return r.text().then(function (txt) { return { ok: r.ok, status: r.status, txt: txt }; });
           })
           .then(function (env) {
             var res = null;
             try { res = JSON.parse(env.txt); } catch (e) { res = null; }
             if (env.ok && res && res.status === 'success') { resolve(res); return; }
-            // Error real del servidor (contenido en el cuerpo JSON)
-            var msg = (res && res.message) || 'Error en la subida a Drive';
-            reject(new Error(msg));
+            reject(new Error((res && res.message) || 'Error en la subida a Drive'));
           })
           .catch(function (err) {
-            // Conserva el mensaje real del servidor si está disponible
-            if (err && err.message) { reject(err); return; }
-            reject(new Error('No se pudo conectar con el Apps Script'));
+            reject(err && err.message ? err : new Error('No se pudo conectar con el Apps Script'));
           });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+      });
     });
   }
 
-  // Orquesta la opción elegida (download | drive | both)
   function procesarGuardado(op, nombre) {
     renderPreview();
-    mostrarToast('Generando PDF…', '');
+    mostrarToast('Generando PDF\u2026', '');
     el.btnGuardar.disabled = true;
     generarBlobPDF().then(function (blob) {
       if (op === 'download' || op === 'both') descargarBlob(blob, nombre);
       if (op === 'drive' || op === 'both') {
         return subirADrive(blob, nombre).then(function (res) {
           if (res && res.status === 'success') {
-            mostrarToast('✅ Documento subido correctamente a Google Drive', 'ok');
-            if (res.fileUrl) { abrirEnDrive(res.fileUrl); }
+            mostrarToast('Documento subido correctamente a Google Drive', 'ok');
+            if (res.fileUrl) window.open(res.fileUrl, '_blank');
           } else {
-            mostrarToast('Subido a Drive (sin confirmación del servidor)', 'ok');
+            mostrarToast('Subido a Drive (sin confirmaci\u00f3n del servidor)', 'ok');
           }
         });
       }
       return null;
     }).catch(function (err) {
       if (err && err.message === 'NO_URL') {
-        mostrarToast('Configura la URL de Apps Script (⚙ Configuración)', 'error');
+        mostrarToast('Configura la URL de Apps Script (Configuraci\u00f3n)', 'error');
       } else if (err && err.message) {
         console.error(err);
         mostrarToast(err.message, 'error');
@@ -648,59 +406,61 @@
     });
   }
 
-  // Muestra/enfoca el popup de opciones con el nombre sugerido
-  var guardarOp = null;
-  var popupAbiertoPorGuardar = false;
-
-  function mostrarToast(msg, tipo) {
-    if (!el.toast) return;
-    el.toast.textContent = msg;
-    el.toast.className = 'toast toast-' + (tipo || '');
-    el.toast.classList.add('show');
-    clearTimeout(el.toast._t);
-    el.toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 3000);
-  }
-
-  // Muestra un enlace "Ver en Drive" en una ventana nueva para abrir el archivo subido
-  function abrirEnDrive(fileUrl) {
-    var win = window.open(fileUrl, '_blank');
-    if (!win) window.location.href = fileUrl;
-  }
-
-  // ---------- Regeneración ----------
-  var timer = null;
+  var _renderTimer = null;
   function autoRegenerar() {
-    clearTimeout(timer);
-    timer = setTimeout(renderPreview, 60);
+    clearTimeout(_renderTimer);
+    _renderTimer = setTimeout(renderPreview, 60);
   }
 
-  function setearAutogen() {
-    var campos = ['estudio', 'direccion', 'telEstudio', 'tatuador', 'nombre', 'dni', 'telefono', 'email', 'ciudad', 'zonaTatuaje', 'declaracionExtra', 'titulo', 'dirCliente', 'diseno', 'tintas'];
-    campos.forEach(function (id) {
-      if (el[id]) { el[id].addEventListener('input', autoRegenerar); el[id].addEventListener('change', autoRegenerar); }
-    });
-    [el.nacDia, el.nacMes, el.nacAnio].forEach(function (s) { if (s) s.addEventListener('change', autoRegenerar); });
-    (SALUD_IDS.concat(['cuidados'])).forEach(function (id) { if (el[id]) el[id].addEventListener('change', autoRegenerar); });
+  function guardarEstudioEnFormulario() {
+    var config = cargarConfig();
+    var est = config.estudio || {};
+    el.estudio.value = est.nombre || '';
   }
 
-  // ---------- Eventos ----------
-  el.btnLimpiarFirma.addEventListener('click', function () { signaturePad.clear(); renderPreview(); });
-  el.btnLimpiarFirmaProf.addEventListener('click', function () { signaturePadProf.clear(); renderPreview(); });
+  var signaturePad = null;
+  var signaturePadProf = null;
+
+  function initSigPad(canvas) {
+    var wrapper = canvas.parentElement;
+    var w = wrapper.clientWidth || 400;
+    var h = wrapper.clientHeight || 160;
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d', { willReadFrequently: true });
+    var pad = new SignaturePad(canvas, { penColor: '#000000', minWidth: 1, maxWidth: 2.5 });
+    pad.onEnd = function () { autoRegenerar(); };
+    return pad;
+  }
+
+  el.btnLimpiarFirma.addEventListener('click', function () {
+    signaturePad.clear();
+    renderPreview();
+  });
+  el.btnLimpiarFirmaProf.addEventListener('click', function () {
+    signaturePadProf.clear();
+    renderPreview();
+  });
+
+  for (var i = 0; i < secciones.length; i++) {
+    secciones[i].addEventListener('toggle', guardarEstadoSecciones);
+  }
 
   el.btnGuardar.addEventListener('click', function () {
-    el.nombreFichero.value = 'consentimiento_' + Date.now() + '.pdf';
+    el.nombreFichero.value = 'consentimiento_eliminacion_' + Date.now() + '.pdf';
     el.popupNombre.classList.add('active');
     el.nombreFichero.focus();
     el.nombreFichero.select();
   });
-  el.btnCancelarNombre.addEventListener('click', function () { el.popupNombre.classList.remove('active'); });
+  el.btnCancelarNombre.addEventListener('click', function () {
+    el.popupNombre.classList.remove('active');
+  });
 
-  // Cada opción del menú ejecuta su acción con el nombre indicado
   el.saveOpts.forEach(function (btn) {
     btn.addEventListener('click', function () {
       var op = btn.getAttribute('data-op');
       var nombre = el.nombreFichero.value.trim();
-      if (!nombre) { nombre = 'consentimiento.pdf'; }
+      if (!nombre) nombre = 'consentimiento_eliminacion.pdf';
       if (!/\.pdf$/i.test(nombre)) nombre += '.pdf';
       el.popupNombre.classList.remove('active');
       procesarGuardado(op, nombre);
@@ -708,10 +468,7 @@
   });
 
   el.nombreFichero.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-      var primera = el.saveOpts[0];
-      if (primera) primera.click();
-    }
+    if (e.key === 'Enter' && el.saveOpts[0]) el.saveOpts[0].click();
   });
 
   el.btnConfig.addEventListener('click', function () {
@@ -722,10 +479,11 @@
     el.cfgEstudioDireccion.value = est.direccion || '';
     el.cfgEstudioTelefono.value = est.telefono || '';
     el.cfgEstudioCiudad.value = est.ciudad || '';
-    el.cfgEstudioTatuador.value = est.tatuador || '';
     el.popupConfig.classList.add('active');
   });
-  el.btnCancelarConfig.addEventListener('click', function () { el.popupConfig.classList.remove('active'); });
+  el.btnCancelarConfig.addEventListener('click', function () {
+    el.popupConfig.classList.remove('active');
+  });
   el.btnGuardarConfig.addEventListener('click', function () {
     var config = cargarConfig();
     config.url = el.configUrl.value.trim();
@@ -733,17 +491,15 @@
       nombre: el.cfgEstudioNombre.value.trim(),
       direccion: el.cfgEstudioDireccion.value.trim(),
       telefono: el.cfgEstudioTelefono.value.trim(),
-      ciudad: el.cfgEstudioCiudad.value.trim(),
-      tatuador: el.cfgEstudioTatuador.value.trim()
+      ciudad: el.cfgEstudioCiudad.value.trim()
     };
     guardarConfig(config);
     el.popupConfig.classList.remove('active');
     guardarEstudioEnFormulario();
     autoRegenerar();
-    mostrarToast('Configuración guardada', 'ok');
+    mostrarToast('Configuraci\u00f3n guardada', 'ok');
   });
 
-  // ----- Botones de borrado de la configuración -----
   function borrarConfig(opciones, mensaje) {
     var config = cargarConfig();
     Object.keys(opciones).forEach(function (clave) {
@@ -759,11 +515,11 @@
     borrarConfig({ estudio: true, secciones: true }, 'Datos del establecimiento borrados');
   });
   el.btnBorrarScript.addEventListener('click', function () {
-    borrarConfig({ url: true }, 'Configuración de Apps Script borrada');
+    borrarConfig({ url: true }, 'Configuraci\u00f3n de Apps Script borrada');
   });
   el.btnBorrarTodo.addEventListener('click', function () {
-    if (!window.confirm('¿Seguro que quieres borrar TODA la configuración guardada en este navegador?')) return;
-    borrarConfig({ estudio: true, url: true, secciones: true }, 'Configuración borrada por completo');
+    if (!window.confirm('\u00bfSeguro que quieres borrar TODA la configuraci\u00f3n guardada en este navegador?')) return;
+    borrarConfig({ estudio: true, url: true, secciones: true }, 'Configuraci\u00f3n borrada por completo');
   });
 
   [el.popupNombre, el.popupConfig].forEach(function (modal) {
@@ -772,29 +528,23 @@
     });
   });
 
-  // ---------- Inicialización ----------
-  function ajustarOffsetPreview() {
-    var barra = document.querySelector('.topbar');
-    var h = barra ? barra.offsetHeight : 56;
-    document.documentElement.style.setProperty('--topbar-h', h + 'px');
-  }
-  ajustarOffsetPreview();
-  window.addEventListener('resize', ajustarOffsetPreview);
-  aplicarEstadoSecciones();
-  initEstadoSecciones();
-  signaturePad = initFirma(el.firmaCanvas, renderPreview);
-  signaturePadProf = initFirma(el.firmaProfCanvas, renderPreview);
-  signaturePad.onEnd = renderPreview;
-  signaturePadProf.onEnd = renderPreview;
-  initFechas();
-  guardarEstudioEnFormulario();
-  limpiarFormularioNoEstudio();
-  setearAutogen();
-  renderPreview();
-
-  window.addEventListener('load', function () {
-    limpiarFormularioNoEstudio();
-    renderPreview();
-    setTimeout(limpiarFormularioNoEstudio, 300);
+  var campoIds = ['estudio', 'nombreCompleto', 'dni', 'rgpdResponsable', 'rgpdCif', 'rgpdDomicilio', 'rgpdCorreo', 'rgpdTelefono'];
+  campoIds.forEach(function (id) {
+    var inp = document.getElementById(id);
+    if (inp) {
+      inp.addEventListener('input', autoRegenerar);
+      inp.addEventListener('change', autoRegenerar);
+    }
   });
+
+  function init() {
+    aplicarEstadoSecciones();
+    signaturePad = initSigPad(el.firmaCanvas);
+    signaturePadProf = initSigPad(el.firmaProfCanvas);
+    guardarEstudioEnFormulario();
+    renderPreview();
+  }
+
+  loadBg().then(init, init);
+
 })();

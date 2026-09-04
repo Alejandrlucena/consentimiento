@@ -197,7 +197,6 @@ body {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   overflow: hidden;
-  position: relative;
   background: #fafafa;
 }
 
@@ -209,10 +208,22 @@ body {
   cursor: crosshair;
 }
 
-.firma-wrapper .btn-small {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.firma-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.firma-bar-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-right: auto;
+}
+
+.firma-bar .btn-small {
+  margin: 0;
 }
 
 .check {
@@ -280,11 +291,19 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-#previewCanvas {
+/* Vista previa multi-página: las páginas A4 se apilan verticalmente */
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.preview-page {
   display: block;
   max-width: 100%;
-  height: auto;
   width: auto;
+  height: auto;
   margin: 0 auto;
   box-shadow: 0 2px 12px rgba(0,0,0,0.35);
   background: #ffffff;
