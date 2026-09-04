@@ -7,6 +7,18 @@
   var PAGE_H = 792;
   var INSET = 2.0; // margen horizontal del valor dentro del hueco (pts)
 
+  // Guardia anti-caché: si js/template.js no está presente (p. ej. por caché
+  // antigua o mezcla de versiones), se muestra un aviso claro en vez de quedar
+  // la vista previa en blanco o lanzar un error críptico.
+  if (typeof TEMPLATE_PDF_B64 === 'undefined' || typeof TEMPLATE_PREVIEW_B64 === 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var aviso = document.createElement('div');
+      aviso.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;background:#dc2626;color:#fff;padding:10px 14px;font:14px/1.4 sans-serif';
+      aviso.textContent = 'No se ha podido cargar la plantilla (js/template.js). Recarga la página con Ctrl+F5 para forzar la actualizaci\u00f3n de la cach\u00e9.';
+      document.body.appendChild(aviso);
+    });
+  }
+
   // ---------------------------------------------------------------------
   // Campos dinámicos inline. Cada hueco se borra (rectángulo blanco de las
   // dimensiones exactas de los guiones/ellipsis de la plantilla) y el valor
@@ -37,7 +49,8 @@
   ];
   var DAT_CENTER = [
     { x0: 413, x1: 573, yBase: 674, size: 7, minSize: 5, get: function () { return 'Centro: ' + getInputValue('estudio'); } },
-    { x0: 413, x1: 573, yBase: 684, size: 7, minSize: 5, get: function () { return 'CIF/DNI rep.: ' + getInputValue('rgpdCif'); } }
+    { x0: 413, x1: 573, yBase: 684, size: 7, minSize: 5, get: function () { return 'CIF/DNI rep.: ' + getInputValue('rgpdCif'); } },
+    { x0: 413, x1: 573, yBase: 694, size: 7, minSize: 5, get: function () { return 'Fecha/Hora: ' + ahora(); } }
   ];
 
   var el = {
