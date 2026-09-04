@@ -6,6 +6,7 @@
   var PAGE_W = 612;
   var PAGE_H = 792;
   var INSET = 2.0; // margen horizontal del valor dentro del hueco (pts)
+  var DEBUG = true; // <- modo depuración activado para este test
 
   // Guardia anti-caché: si js/template.js no está presente (p. ej. por caché
   // antigua o mezcla de versiones), se muestra un aviso claro en vez de quedar
@@ -212,6 +213,7 @@
   function previewField(ctx, f) {
     var val = getInputValue(f.label);
     if (!val) return;
+    if (DEBUG) console.log('previewField:', f.label, '=>', val ? val.substring(0,20) : '(vacío)', 'coords x0:', f.x0, 'x1:', f.x1, 'yTop:', f.yTop, 'yBot:', f.yBot);
     var maxW = f.x1 - f.x0 - 2 * INSET;
     var sz = fitSize(val, f.size, f.minSize, maxW);
     // borrar hueco
@@ -227,6 +229,7 @@
   function previewDataLine(ctx, dl) {
     var val = dl.get();
     if (!val) return;
+    if (DEBUG) console.log('previewDataLine:', dl.get.toString().substring(0,15), '=>', val ? val.substring(0,20) : '(vacío)', 'coords x0:', dl.x0, 'yBase:', dl.yBase);
     var sz = fitSize(val, dl.size, dl.minSize, dl.x1 - dl.x0);
     ctx.fillStyle = '#000000';
     ctx.font = (sz * SCALE) + 'px Helvetica, Arial, sans-serif';
@@ -243,6 +246,32 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, c.width, c.height);
     if (bgImg) ctx.drawImage(bgImg, 0, 0, c.width, c.height);
+
+    if (DEBUG) {
+      console.log('renderPreview: dibujando', FIELDS.length, 'fields y', sigs.length, 'firmas');
+      // Dibujar rectángulos alrededor de cada field
+      FIELDS.forEach(function (f, i) {
+        var x0 = f.x0 * SCALE, yTop = f.yTop * SCALE, x1 = f.x1 * SCALE, yBot = f.yBot * SCALE;
+        ctx.strokeStyle = 'rgba(255,0,0,0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x0, yTop, x1 - x0, yBot - yTop);
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        ctx.fillText('field' + i + ':' + (f.label ? document.getElementById(f.label).value.substring(0,12) : ''), x0, yTop - 4);
+      });
+      // Dibujar rectángulos alrededor de las líneas de datos de firma
+      var sigs = [SIG_CLIENT, SIG_CENTER];
+      for (var s = 0; s < sigs.length; s++) {
+        var sq = sigs[s];
+        var yBaseList = [674, 684, 694]; // DAT_CLIENT y DAT_CENTER yBases
+        for (var l = 0; l < (sq === SIG_CLIENT ? DAT_CLIENT.length : DAT_CENTER.length); l++) {
+          var yBase = yBaseList[l] * SCALE;
+          var x0 = sq.x0 * SCALE, x1 = sq.x1 * SCALE;
+          ctx.strokeStyle = 'rgba(0,255,0,0.2)';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(x0, yBase - 6, x1 - x0, 14);
+        }
+      }
+    }
 
     for (var i = 0; i < FIELDS.length; i++) previewField(ctx, FIELDS[i]);
 
@@ -420,6 +449,13 @@
 
   var _renderTimer = null;
   function autoRegenerar() {
+    if (DEBUG) {
+      console.log('autoRegenerar disparado — leyendo inputs actuales:');
+      campoIds.forEach(function (id) {
+        var inp = document.getElementById(id);
+        if (inp) console.log('  ', id, '=>', inp.value ? inp.value.substring(0,30) : '(vacío)');
+      });
+    }
     clearTimeout(_renderTimer);
     _renderTimer = setTimeout(renderPreview, 60);
   }
