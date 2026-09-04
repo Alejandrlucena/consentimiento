@@ -73,7 +73,7 @@ body {
 
 .main-container {
   display: grid;
-  /* En escritorio: formulario a la izquierda (ancho cómodo) y la vista
+  /* En escritorio: formulario a la izquierda (ancho c├│modo) y la vista
      previa a la derecha compartiendo el ancho restante. Cada columna tiene
      su altura natural; 'start' alinea sus topes y evita estirar el preview
      cuando se despliegan secciones del formulario. */
@@ -97,7 +97,7 @@ body {
 
 /*
   La vista previa queda fija (sticky) bajo la barra superior mientras haces
-  scroll por la página. Así, en secciones bajas del formulario (Salud, Firma)
+  scroll por la p├ígina. As├¡, en secciones bajas del formulario (Salud, Firma)
   el preview sigue siempre visible a la derecha y no se pierde de vista.
   'align-self: start' mantiene su tope alineado con el del formulario.
 */
@@ -143,7 +143,7 @@ body {
   min-height: 50px;
 }
 
-/* "Declaración adicional": a juego con los recuadros de firma */
+/* "Declaraci├│n adicional": a juego con los recuadros de firma */
 #declaracionExtra {
   display: block;
   width: 100%;
@@ -291,7 +291,7 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* Vista previa multi-página: las páginas A4 se apilan verticalmente */
+/* Vista previa multi-p├ígina: las p├íginas A4 se apilan verticalmente */
 .preview-wrap {
   display: flex;
   flex-direction: column;
@@ -384,7 +384,7 @@ body {
   flex: 0 0 auto;
 }
 
-/* Zona de borrado de la configuración */
+/* Zona de borrado de la configuraci├│n */
 .config-danger {
   margin-top: 18px;
   padding: 12px 14px;
@@ -444,7 +444,7 @@ body {
 .toast.error { background: #dc2626; }
 
 @media (max-width: 900px) {
-  /* Móvil/tablet: una sola columna con scroll de página normal,
+  /* M├│vil/tablet: una sola columna con scroll de p├ígina normal,
      sin paneles fijos ni preview sticky. */
   .main-container {
     grid-template-columns: 1fr;
@@ -471,7 +471,7 @@ body {
   }
 }
 
-/* Móvil: cada sección colapsable debe verse como un botón en relieve */
+/* M├│vil: cada secci├│n colapsable debe verse como un bot├│n en relieve */
 @media (max-width: 600px) {
   details.section {
     border-radius: 14px;
@@ -494,7 +494,7 @@ body {
   }
 }
 
-/* Tablet Android: asegurar zonas táctiles y evitar zoom */
+/* Tablet Android: asegurar zonas t├íctiles y evitar zoom */
 @media (pointer: coarse) {
   body {
     -webkit-tap-highlight-color: transparent;
@@ -540,7 +540,7 @@ input, select, textarea {
   background: #eff6ff;
 }
 
-/* Secciones colapsables del formulario (acordeón) */
+/* Secciones colapsables del formulario (acorde├│n) */
 details.section {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -602,140 +602,4 @@ details.section > .section-body {
 details.section[open] > summary {
   border-bottom: 1px solid #e2e8f0;
   background: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%);
-}
-
-/* =====================================================================
-   Documento HTML (vista previa) — página de consentimiento
-   ===================================================================== */
-
-.doc {
-  width: 612px;
-  max-width: 100%;
-  background: #fff;
-  margin: 0 auto;
-  padding: 36px 40px;
-  color: #000;
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.35;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Cabecera aislada de contacto (tel/email/dirección). Sin position absolute.
-   El margin-bottom separa la info de contacto del título principal. */
-.doc-head {
-  position: relative;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #9ca3af;
-  padding-bottom: 14px;
-}
-.doc-head .doc-contact {
-  font-size: 9px;
-  color: #111;
-}
-.doc-contact div {
-  margin: 1px 0;
-}
-.doc-contact .estudio-name {
-  font-weight: bold;
-  font-size: 11px;
-}
-
-/* Título principal del documento */
-.doc-title {
-  text-align: center;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 0 0 2px;
-}
-.doc-subtitle {
-  text-align: center;
-  font-size: 12px;
-  font-style: italic;
-  margin: 0 0 14px;
-}
-
-/* Línea del primer párrafo con los rellenos (nombre/DNI) — inline */
-.doc-line {
-  margin: 0 0 2px;
-  font-size: 8pt;
-}
-.doc-line-8 { font-size: 8pt; }
-.doc-line-7 { font-size: 7pt; }
-
-.doc-h3 {
-  font-size: 7pt;
-  font-weight: bold;
-  font-style: italic;
-  margin: 8px 0 2px;
-}
-
-/* Rellenos vinculados: se subrayan sutilmente para que se vea dónde va el dato */
-.fill {
-  display: inline;
-  white-space: normal;
-}
-.fill.nombre, .fill.dni, .fill.estudio { border-bottom: 1px solid #b0b0b0; }
-
-/* Cláusula RGPD: texto continuo inline con spans, sin saltos de línea ni ellipsis */
-.rgpd {
-  font-size: 6pt;
-  margin-top: 14px;
-  padding-top: 4px;
-  border-top: 1px solid #9ca3af;
-}
-.rgpd p {
-  margin: 0 0 2px;
-}
-
-/* Bloque de firmas: dos columnas independientes */
-.firma-area {
-  display: flex;
-  gap: 24px;
-  margin-top: 18px;
-}
-.firma-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-.firma-title {
-  font-size: 7pt;
-  font-weight: bold;
-  font-style: italic;
-  margin-bottom: 6px;
-}
-/* Contenedor de la imagen de firma: alto fijo, la imagen se encaja bien
-   y se separa del bloque de datos con margin-bottom. */
-.sig-frame {
-  width: 100%;
-  height: 60px;
-  border-bottom: 1px solid #333;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.sig-frame .sig-img {
-  display: block;
-  width: 100%;
-  height: 60px;
-  object-fit: contain;
-}
-.sig-empty {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  color: #6b7280;
-  font-size: 8pt;
-}
-.firma-meta {
-  font-size: 8pt;
-  line-height: 1.5;
-}
-.firma-meta .meta-label { font-weight: normal; }
-.firma-meta .meta-val { border-bottom: 1px dotted #9ca3af; display: inline-block; min-width: 80px; }
-
-@media (max-width: 600px) {
-  .firma-area { flex-direction: column; }
 }
