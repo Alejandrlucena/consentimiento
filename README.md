@@ -91,6 +91,49 @@ En la web (GitHub Pages o local), pulsa **⚙ Configuración**:
 > el menú de configuración. Ideal para que quien use la web solo abra un enlace.
 > Ejemplo: `https://Alejandrlucena.github.io/consentimiento/?scriptUrl=.../exec`
 
+### 4b. Instalarlo desde cero sin conocimientos (paso a paso)
+Si aún no tienes el Web App desplegado, la web te guía con **2 botones y 5 pasos**
+(nada de código: se copia y se pega). Es crítico hacer los 5 pasos exactos:
+
+1. En la web: **⚙ Configuración → "🆕 No tengo URL: instalarlo paso a paso"**.
+2. Pulsa **📋 Copiar el código** (se copia solo) y **🆕 Abrir Apps Script** (se
+   abre en otra pestaña; te pedirá iniciar sesión con tu cuenta de Google).
+3. Dentro de Apps Script verás un recuadro blanco con este texto azul:
+
+   ```js
+   function myFunction() {
+
+   }
+   ```
+
+   **Bórralo primero**: pulsa dentro del recuadro → mantener pulsado →
+   **Seleccionar todo** → **Borrar**. Después mantener pulsado → **Pegar**.
+4. Pulsa **Implementar** (botón azul arriba a la derecha) →
+   **Nueva implementación**. Se abre una ventana que dice **"Seleccionar tipo"**:
+   pulsa el **engranaje ⚙️** que hay justo a la derecha y elige **Aplicación web**.
+   Comprueba estas 4 opciones:
+   - **Tipo de implementación**: **Aplicación web**.
+   - **Descripción**: pon cualquier texto (por ejemplo, el que sale por defecto
+     *"Nueva descripción"*) — hay que ponerlo sí o sí.
+   - **Ejecutar como**: **Yo (tu correo)** → así los PDFs se guardan en tu Drive.
+   - **Quién tiene acceso**: **Cualquier persona** (**obligatorio**; si no, la web
+     no podrá guardar los PDFs).
+   - **Implementar**.
+5. Si aparece un aviso de permisos ("no verificado"/"permitir acceso"), pulsa
+   **Opciones avanzadas → Continuar / Acceder a tu proyecto → Permitir**.
+6. Copia la **URL de la aplicación web** (termina en `/exec`) y **guárdala en algún
+   sitio seguro** (p. ej. en tus Notas): ese enlace es tu conexión permanente y
+   **te valdrá siempre**. Si lo pierdes, tendrás que repetir todo el proceso.
+7. Vuelve a la web, pulsa **✅ Ya tengo la URL**, pega el enlace y **🔗 Probar
+   conexión**.
+
+> 💡 Los PDFs se guardarán en una carpeta llamada **PDFs de Consentimiento**, en tu
+> Google Drive: **drive.google.com → Mi unidad → PDFs de Consentimiento**. Se crea
+> **sola** la primera vez que se guarda un PDF; no hay que crear ninguna carpeta.
+
+> Nota: la web funciona igual si te pasan la URL ya desplegada; solo tienes que
+> pegarla en ⚙ Configuración (o abrir el enlace directo `?scriptUrl=`).
+
 > Con esto, al pulsar **💾 Guardar PDF → Subir a Google Drive** tu documento
 > aparecerá en la carpeta configurada.
 

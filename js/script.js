@@ -97,7 +97,9 @@
     cfgRgpdCorreo: document.getElementById('cfgRgpdCorreo'),
     cfgRgpdTelefono: document.getElementById('cfgRgpdTelefono'),
     btnProbarConexion: document.getElementById('btnProbarConexion'),
-    estadoConexion: document.getElementById('estadoConexion')
+    estadoConexion: document.getElementById('estadoConexion'),
+    btnCopiarCodigo: document.getElementById('btnCopiarCodigo'),
+    btnYaDesplegado: document.getElementById('btnYaDesplegado')
   };
 
   var _mctx = null;
@@ -581,6 +583,55 @@
     });
   });
 
+  // =========================================================================
+  // GUÍA DE INSTALACIÓN SIMPLE (sin OAuth)
+  // Pasos: 1) Copiar el código  2) Abrir Apps Script y pegar  3) Ya tengo URL
+  // =========================================================================
+  function copiarTexto(texto, okMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(function () {
+        mostrarToast(okMsg || 'Código copiado', 'ok');
+      }, function () {
+        textoFallback(texto, okMsg);
+      });
+    } else {
+      textoFallback(texto, okMsg);
+    }
+  }
+  function textoFallback(texto, okMsg) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      mostrarToast(okMsg || 'Código copiado', 'ok');
+    } catch (e) {
+      mostrarToast('No se pudo copiar: selecciona y copia el código manualmente', 'error');
+    }
+  }
+
+  el.btnCopiarCodigo.addEventListener('click', function () {
+    copiarTexto(window.APPSCRIPT_CODE || '', 'Código copiado. Pega en Apps Script');
+  });
+
+  el.btnYaDesplegado.addEventListener('click', function () {
+    var d = el.btnYaDesplegado.closest('.autoconfig');
+    if (d) d.removeAttribute('open');
+    el.configUrl.focus();
+    mostrarToast('Pega aquí la URL que termina en /exec', '');
+  });
+
+  // Cargar el código del Apps Script una sola vez para poder copiarlo
+  (function precargarCodigo() {
+    fetch('apps-script/Code.gs', { cache: 'no-store' }).then(function (r) { return r.text(); })
+      .then(function (t) { window.APPSCRIPT_CODE = t; })
+      .catch(function () { window.APPSCRIPT_CODE = ''; });
+  })();
+
   function procesarGuardado(op, nombre) {
     renderPreview();
     mostrarToast('Generando PDF\u2026', '');
@@ -727,12 +778,14 @@
     guardarEstudioEnFormulario();
     autoRegenerar();
     mostrarToast('Configuraci\u00f3n guardada', 'ok');
-    // Comprobar la conexión automáticamente (silencioso: si falla solo lima el estado)
+    // Comprobar la conexión automáticamente (toast, ya que el modal se cierra)
     if (config.url && config.url.indexOf('http') === 0) {
       probarConexion(config.url).then(function (res) {
-        mostrarEstadoConexion(res, true);
+        mostrarToast(res && res.folderName
+          ? 'Conexi\u00f3n correcta. PDFs en: ' + res.folderName
+          : 'Conexi\u00f3n correcta', 'ok');
       }, function (err) {
-        mostrarEstadoConexion(err.message, false);
+        mostrarToast(err.message, 'error');
       });
     }
   });

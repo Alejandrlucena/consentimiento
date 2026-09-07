@@ -342,6 +342,9 @@ body {
   padding: 24px;
   width: 90%;
   max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
@@ -431,12 +434,117 @@ body {
   border-radius: 8px;
   cursor: pointer;
   border: none;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+a.btn-config-cta {
+  display: block;
 }
 .btn-config-cta:hover { background: #0284c7; }
 .btn-config-cta:disabled { opacity: 0.6; cursor: progress; }
 
 .conexion-estado.ok { color: #15803d; }
 .conexion-estado.error { color: #dc2626; }
+
+.autoconfig {
+  margin-top: 12px;
+  border: 1px dashed #93c5fd;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.autoconfig summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2563eb;
+  border-radius: 8px;
+}
+.autoconfig summary:hover { background: #eff6ff; }
+.autoconfig-body {
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.auto-pasos,
+.paso-grid {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.paso {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+.paso-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.paso-num {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.paso-titulo {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+.paso-txt {
+  margin: 4px 0;
+  font-size: 0.88rem;
+  color: #374151;
+  line-height: 1.65;
+}
+.paso-opts {
+  margin: 8px 0 4px;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  color: #374151;
+  line-height: 1.9;
+}
+.paso-code {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: #0f172a;
+  color: #7dd3fc;
+  border-radius: 8px;
+  font-family: Consolas, Menlo, monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
+.paso-info {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+.paso-info .paso-num {
+  background: #0d9488;
+}
+.paso-grid .btn-config-cta {
+  margin-top: 8px;
+}
+.hint-date {
+  font-weight: 600;
+  color: #0f172a;
+}
 
 /* Toast */
 .toast {
