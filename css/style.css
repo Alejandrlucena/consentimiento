@@ -422,6 +422,22 @@ body {
   border-color: #ef4444;
 }
 
+.btn-config-cta {
+  width: 100%;
+  background: #0ea5e9;
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+.btn-config-cta:hover { background: #0284c7; }
+.btn-config-cta:disabled { opacity: 0.6; cursor: progress; }
+
+.conexion-estado.ok { color: #15803d; }
+.conexion-estado.error { color: #dc2626; }
+
 /* Toast */
 .toast {
   visibility: hidden;

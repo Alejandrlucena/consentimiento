@@ -95,7 +95,9 @@
     cfgRgpdCif: document.getElementById('cfgRgpdCif'),
     cfgRgpdDomicilio: document.getElementById('cfgRgpdDomicilio'),
     cfgRgpdCorreo: document.getElementById('cfgRgpdCorreo'),
-    cfgRgpdTelefono: document.getElementById('cfgRgpdTelefono')
+    cfgRgpdTelefono: document.getElementById('cfgRgpdTelefono'),
+    btnProbarConexion: document.getElementById('btnProbarConexion'),
+    estadoConexion: document.getElementById('estadoConexion')
   };
 
   var _mctx = null;
@@ -520,6 +522,65 @@
     });
   }
 
+  function probarConexion(url) {
+    if (!url || url.indexOf('http') !== 0) {
+      mostrarToast('Primero pega la URL del Apps Script', 'error');
+      return Promise.reject(new Error('NO_URL'));
+    }
+    return new Promise(function (resolve, reject) {
+      fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'config' })
+      })
+        .then(function (r) {
+          return r.text().then(function (txt) { return { ok: r.ok, status: r.status, txt: txt }; });
+        })
+        .then(function (env) {
+          var res = null;
+          try { res = JSON.parse(env.txt); } catch (e) { res = null; }
+          if (env.ok && res && res.status === 'success') { resolve(res); return; }
+          reject(new Error((res && res.message) || 'El Web App respondió un error'));
+        })
+        .catch(function (err) {
+          reject(err && err.message ? err : new Error('No se pudo conectar con el Apps Script'));
+        });
+    });
+  }
+
+  function mostrarEstadoConexion(res, ok) {
+    if (!el.estadoConexion) return;
+    el.estadoConexion.hidden = false;
+    el.estadoConexion.className = 'hint conexion-estado ' + (ok ? 'ok' : 'error');
+    if (ok) {
+      el.estadoConexion.textContent = res && res.folderName
+        ? '✅ Conexión correcta. Los PDFs se guardan en: ' + res.folderName
+        : '✅ Conexión correcta';
+    } else {
+      el.estadoConexion.textContent = '❌ ' + (res || 'No se pudo conectar');
+    }
+  }
+
+  el.btnProbarConexion.addEventListener('click', function () {
+    var btn = el.btnProbarConexion;
+    var url = el.configUrl.value.trim();
+    if (!url) {
+      mostrarEstadoConexion('Primero pega la URL del Apps Script', false);
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Comprobando…';
+    probarConexion(url).then(function (res) {
+      mostrarEstadoConexion(res, true);
+    }, function (err) {
+      mostrarEstadoConexion(err.message, false);
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = '🔗 Probar conexión';
+    });
+  });
+
   function procesarGuardado(op, nombre) {
     renderPreview();
     mostrarToast('Generando PDF\u2026', '');
@@ -666,6 +727,14 @@
     guardarEstudioEnFormulario();
     autoRegenerar();
     mostrarToast('Configuraci\u00f3n guardada', 'ok');
+    // Comprobar la conexión automáticamente (silencioso: si falla solo lima el estado)
+    if (config.url && config.url.indexOf('http') === 0) {
+      probarConexion(config.url).then(function (res) {
+        mostrarEstadoConexion(res, true);
+      }, function (err) {
+        mostrarEstadoConexion(err.message, false);
+      });
+    }
   });
 
   function borrarConfig(opciones, mensaje) {
@@ -742,6 +811,22 @@
       var inp = document.getElementById(key);
       if (stored && inp) inp.value = stored;
     });
+    // Auto-configuración desde la URL: https://sitio/?scriptUrl=URL
+    var params = new URLSearchParams(window.location.search);
+    var scriptUrl = params.get('scriptUrl');
+    if (scriptUrl) {
+      var config = cargarConfig();
+      config.url = scriptUrl.trim();
+      guardarConfig(config);
+      el.configUrl.value = config.url;
+      mostrarToast('Enlace de configuración aplicado', 'ok');
+      // Sanidad: quitar el parámetro de la barra de direcciones
+      try {
+        var u = new URL(window.location.href);
+        u.searchParams.delete('scriptUrl');
+        window.history.replaceState(null, '', u.toString());
+      } catch (e) {}
+    }
     renderPreview();
   }
 

@@ -145,6 +145,12 @@
 
       <p class="cfg-label">Apps Script (destino de los PDFs)</p>
       <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/XXXXX/exec">
+      <div class="danger-btns">
+        <button type="button" class="btn btn-config-cta" id="btnProbarConexion">🔗 Probar conexión</button>
+      </div>
+      <p id="estadoConexion" class="hint conexion-estado" hidden></p>
+
+      <p class="hint">💡 Puedes abrir la web con <code>?scriptUrl=TU_URL</code> al final del enlace y la configuración se guardará sola al cargar.</p>
 
       <p class="hint">⚠️ La configuración se guarda de forma permanente en el navegador (localStorage), no en ningún servidor. El resto de datos del formulario se borran al recargar la página.</p>
 
@@ -171,6 +177,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
   <script src="js/template.js?v=54"></script>
-  <script src="js/script.js?v=57"></script>
+  <script src="js/script.js?v=58"></script>
 </body>
 </html>

@@ -10,18 +10,9 @@
  *     - Ve a https://script.google.com → "Proyecto nuevo".
  *     - Copia TODO el contenido de este archivo (Code.gs) en el editor.
  *     - Copia también apps-script/appsscript.json al proyecto (menú
- *       "Vista" → "Mostrar archivo de manifiesto" → pega su contenido,
- *       o usa "Editor/Project Settings" para editar el manifiesto).
+ *       "Vista" → "Mostrar archivo de manifiesto" → pega su contenido).
  *
- *  2) Configura la carpeta de Drive donde se guardarán los PDFs
- *     - Pega en el editor la función setupFolder con el ID de tu carpeta:
- *           setupFolder('ID_DE_LA_CARPETA_DE_DRIVE')
- *       y pulsa "Ejecutar". El ID es el tramo de la URL de la carpeta:
- *           https://drive.google.com/drive/folders/<AQUI_EL_ID>
- *     - (Este ID queda en ScriptProperties y se puede cambiar sin tocar
- *       el repositorio ni volver a desplegar.)
- *
- *  3) Despliega como Aplicación Web
+ *  2) Despliega como Aplicación Web
  *     - Botón azul "Implementar" → "Nueva implementación".
  *     - Tipo: "Aplicación web".
  *     - "Descripción": p. ej. "Subir PDFs de consentimiento".
@@ -30,22 +21,21 @@
  *       que la web pública pueda llamarlo).
  *     - "Implementar" y copia la URL que termina en /exec.
  *
- *  4) Conecta la web al Web App
+ *  3) Conecta la web al Web App
  *     - En la web (GitHub Pages), pulsa "⚙ Configuración".
- *     - Pega la URL /exec en el campo "Apps Script".
- *     - Guardar. La URL queda en el localStorage del navegador.
+ *     - Pega la URL /exec en el campo "Apps Script" y pulsa
+ *       "🔗 Probar conexión".
  *
- *  IMPORTANTE: nada de IDs ni URLs hardcodeados en el repositorio (para
- *  poder cambiar de entorno de test a producción sin tocar código).
- *  La carpeta de destino se configura mediante ScriptProperties.
+ *  NO HACE FALTA configurar la carpeta de Drive: la primera vez que se usa
+ *  el script, crea SOLO la carpeta "PDFs de Consentimiento" en la raíz de
+ *  tu Drive y la guarda (ScriptProperties). Si quieres usar otra carpeta,
+ *  ejecuta en el editor:  setupFolder('ID_DE_LA_CARPETA').
  * =====================================================================
  */
 
 /**
- * Configura la carpeta de Drive de destino.
- * Ejecuta una vez esta función en el editor (o usa Script: setupFolder),
- * pasando el ID de la carpeta (el tramo de la URL de la carpeta).
- * Así puedes apuntar a una carpeta distinta en test y en producción.
+ * Configura la carpeta de Drive de destino (opcional).
+ * Si no se llama, la carpeta se crea automáticamente al primer uso.
  *   Ejemplo (en la consola del editor):
  *     setupFolder('ID_DE_LA_CARPETA')
  */
@@ -54,13 +44,25 @@ function setupFolder(folderId) {
     .setProperty('FOLDER_ID', folderId.trim());
 }
 
-/** Devuelve el ID de la carpeta configurado (sin hardcodearlo). */
+/** Devuelve el nombre de la carpeta configurada o '' si aún no existe. */
+function getFolderName() {
+  var name = PropertiesService.getScriptProperties().getProperty('FOLDER_NAME');
+  return name || '';
+}
+
+/**
+ * Devuelve el ID de la carpeta de destino. Si no hay carpeta configurada,
+ * la CREA automáticamente ("PDFs de Consentimiento" en la raíz de Drive)
+ * y la guarda. Así el web app funciona desde cero sin setupFolder.
+ */
 function getFolderId() {
   var id = PropertiesService.getScriptProperties().getProperty('FOLDER_ID');
-  if (!id) {
-    throw new Error('FOLDER_ID no configurado. Ejecuta setupFolder(\"ID_DE_LA_CARPETA\") en el editor.');
-  }
-  return id;
+  if (id) return id;
+  var folder = DriveApp.createFolder('PDFs de Consentimiento');
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('FOLDER_ID', folder.getId());
+  props.setProperty('FOLDER_NAME', folder.getName());
+  return folder.getId();
 }
 
 /**
@@ -83,11 +85,22 @@ function respuestaCORS(json, code) {
  * lanzan preflight en determinadas condiciones.
  */
 function doGet() {
-  return respuestaCORS({ status: 'ok', message: 'Apps Script operativo' }, 200);
+  try {
+    var name = getFolderName();
+    return respuestaCORS({
+      status: 'ok',
+      message: 'Apps Script operativo',
+      folderName: name
+    }, 200);
+  } catch (error) {
+    return respuestaCORS({ status: 'error', message: 'Error al comprobar el Web App', error: String(error) }, 500);
+  }
 }
 
 /**
  * POST: recibe el PDF en Base64 y lo crea en la carpeta de destino.
+ * También responde a la acción "config" (probar conexión): crea la carpeta
+ * si no existe y devuelve su nombre, sin guardar ningún PDF.
  *
  * El cliente (js/script.js) envía un JSON como texto plano. No se usa
  * Content-Type: application/json porque el CORS de Apps Script solo
@@ -96,18 +109,29 @@ function doGet() {
  *
  * Contrato de datos esperados en el body:
  *   {
+ *     "action":   "upload" | "config",        // "upload" por defecto
  *     "fileName": "nombre_del_archivo.pdf",   // opcional (si no, usa fecha)
- *     "fileData": "BASE64_DEL_PDF",           // obligatorio
+ *     "fileData": "BASE64_DEL_PDF",           // obligatorio para "upload"
  *     "mimeType": "application/pdf"            // opcional (por defecto PDF)
  *   }
  *
  * Respuestas (JSON):
- *   - 200 { status:'success', message, fileUrl, fileName }
+ *   - 200 { status:'success', message, fileUrl, fileName, folderName }
  *   - 500 { status:'error', message, error }
  */
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+
+    if (data.action === 'config') {
+      var folderId = getFolderId();
+      return respuestaCORS({
+        status: 'success',
+        message: 'Conexión correcta. Los documentos se guardan en la carpeta: ' + getFolderName(),
+        folderId: folderId,
+        folderName: getFolderName()
+      }, 200);
+    }
 
     var fileName = data.fileName || ('documento_' + Date.now() + '.pdf');
     var base64   = data.fileData || '';
@@ -125,7 +149,8 @@ function doPost(e) {
       status: 'success',
       message: 'Documento subido correctamente a Google Drive',
       fileUrl: file.getUrl(),
-      fileName: fileName
+      fileName: fileName,
+      folderName: getFolderName()
     }, 200);
 
   } catch (error) {

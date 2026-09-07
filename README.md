@@ -59,20 +59,16 @@ configuras. A continuación la guía completa para crearlo y conectarlo.
    Este manifiesto ya trae `"access": "ANYONE"`, clave para el CORS.
 
 ### 2. Configurar la carpeta de destino
-La carpeta **no está hardcodeada** (es un requisito del proyecto: nada de IDs en el
-repositorio). Se configura una única vez con `setupFolder()`:
+**Ya no es necesario:** la primera vez que se usa, el Web App **crea solo** la
+carpeta **"PDFs de Consentimiento"** en la raíz de tu Drive y la guarda.
+Si quieres usar otra carpeta concreta, ejecuta en el editor una única vez:
 
-1. Pega en el editor la siguiente línea (reemplaza el ID):
    ```js
-   setupFolder('AQUI_EL_ID_DE_LA_CARPETA_DE_DRIVE')
+   setupFolder('ID_DE_LA_CARPETA_DE_DRIVE')
    ```
-2. Selecciona `setupFolder` en el desplegable de funciones y pulsa **Ejecutar**.
-3. Autoriza los permisos (Drive) cuando lo pida.
 
-> El ID es el tramo de la URL de la carpeta: `https://drive.google.com/drive/folders/<AQUI_EL_ID>`
-> El ID queda guardado en *ScriptProperties* de Apps Script. Puedes cambiar la
-> carpeta en cualquier momento llamando de nuevo a `setupFolder` con otro ID, sin
-> tocar el repositorio ni redesplegar.
+   El ID es el tramo de la URL de la carpeta. Queda en *ScriptProperties*,
+   fuera del repositorio.
 
 ### 3. Desplegar como Aplicación Web
 1. Botón **Implementar → Nueva implementación**.
@@ -84,10 +80,16 @@ repositorio). Se configura una única vez con `setupFolder()`:
 6. Pulsa **Implementar** y **copia la URL de implementación** (termina en `/exec`).
 
 ### 4. Conectar la web al Web App
-1. Abre la web (GitHub Pages o local).
-2. Pulsa el botón **⚙ Configuración** (arriba a la derecha).
-3. En **"Apps Script (destino de los PDFs)"** pega la URL `/exec`.
-4. Pulsa **Guardar**. La URL se guarda en el `localStorage` del navegador.
+En la web (GitHub Pages o local), pulsa **⚙ Configuración**:
+- Pega la URL `/exec` en **"Apps Script (destino de los PDFs)"**.
+- Pulsa **🔗 Probar conexión**: el script creará la carpeta automáticamente y
+  te confirmará en qué carpeta de Drive se guardarán los PDFs.
+- Pulsa **Guardar**.
+
+> **Enlace directo (auto-configuración):** añade `?scriptUrl=TU_URL` al final de
+> la URL de la web y la configuración se guardará **sola al cargar**, sin tocar
+> el menú de configuración. Ideal para que quien use la web solo abra un enlace.
+> Ejemplo: `https://Alejandrlucena.github.io/consentimiento/?scriptUrl=.../exec`
 
 > Con esto, al pulsar **💾 Guardar PDF → Subir a Google Drive** tu documento
 > aparecerá en la carpeta configurada.
@@ -99,13 +101,14 @@ repositorio). Se configura una única vez con `setupFolder()`:
   en el manifiesto. Por eso la web envía el JSON como **texto plano** (no
   `application/json`), que es lo que el CORS de Apps Script permite.
 - **Error "Error al subir el documento"**: revisa que (a) la URL `/exec` esté bien
-  pegada en Configuración, (b) hayas ejecutado `setupFolder` con un ID válido,
-  (c) el Web App esté desplegado con acceso "Cualquier persona".
+  pegada (o el enlace `?scriptUrl=` sin errores), (b) el Web App esté desplegado
+  con acceso "Cualquier persona", (c) te hayas conectado a la cuenta de Drive
+  adecuada.
 - **El PDF no aparece en Drive**: confirma en qué cuenta estás logueado en Drive y
-  que la carpeta exista con el ID correcto.
+  que la carpeta "PDFs de Consentimiento" exista en su raíz.
 
 ### Estructura de archivos de `apps-script/`
-- `Code.gs` — lógica: `setupFolder`, `getFolderId`, `respuestaCORS`, `doGet`, `doPost`.
+- `Code.gs` — lógica: `setupFolder`, `getFolderId`, `getFolderName`, `respuestaCORS`, `doGet`, `doPost`.
 - `appsscript.json` — manifiesto (permite que cualquiera llame al Web App).
 
 ## Datos persistentes vs. temporales
