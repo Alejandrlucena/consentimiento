@@ -107,7 +107,7 @@
 
   function canvasTextWidth(text, size) {
     var ctx = measureCtx();
-    ctx.font = size + 'px Helvetica, Arial, sans-serif';
+    ctx.font = 'bold ' + size + 'px Helvetica, Arial, sans-serif';
     return ctx.measureText(text).width;
   }
 
@@ -281,7 +281,7 @@
     if (!val) return;
     if (DEBUG) {
       var pxTextX = (f.x0 + INSET) * SCALE;
-      var pxTextY = (PAGE_H - f.yBase) * SCALE;
+      var pxTextY = f.yBase * SCALE;
       console.log('previewField:', f.label, '=>', val ? val.substring(0,20) : '(vacío)', 'pixel coords:', pxTextX, pxTextY);
     }
     // Tamaño común a todos los campos (si un campo colapsa, el resto usa el suyo)
@@ -300,7 +300,7 @@
     ctx.textAlign = 'left';
     for (var i = 0; i < lay.lines.length; i++) {
       var baseline = f.yBase - lh * (lay.lines.length - 1 - i);
-      ctx.fillText(lay.lines[i], (f.x0 + INSET) * SCALE, (PAGE_H - baseline) * SCALE);
+      ctx.fillText(lay.lines[i], (f.x0 + INSET) * SCALE, baseline * SCALE);
     }
   }
 
@@ -319,7 +319,7 @@
     ctx.font = 'bold ' + (lay.size * SCALE) + 'px Helvetica, Arial, sans-serif';
     ctx.textAlign = 'left';
     for (var i = 0; i < lay.lines.length; i++) {
-      ctx.fillText(lay.lines[i], dl.x0 * SCALE, (PAGE_H - (dl.yBase + i * lay.size * 1.12)) * SCALE);
+      ctx.fillText(lay.lines[i], dl.x0 * SCALE, (dl.yBase + i * lay.size * 1.12) * SCALE);
     }
   }
 
