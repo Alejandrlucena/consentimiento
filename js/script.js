@@ -30,28 +30,35 @@
   //  - size, minSize : tamaño de fuente base / mínimo tras auto-ajuste
   // ---------------------------------------------------------------------
   var FIELDS = [
-    { id: 'nombre',  label: 'nombreCompleto',  x0: 79.5,  x1: 319.5, yTop: 82.7,  yBot: 91.6,  size: 8, minSize: 6 },
-    { id: 'dni',     label: 'dni',             x0: 369.0, x1: 578.0, yTop: 82.7,  yBot: 91.6,  size: 8, minSize: 6 },
-    { id: 'estudio', label: 'estudio',         x0: 329.7, x1: 378.6, yTop: 101.0, yBot: 108.8, size: 7, minSize: 4.5 },
-    { id: 'rgpdResponsable', label: 'rgpdResponsable', x0: 274.8, x1: 364.8, yTop: 718.5, yBot: 725.2, size: 6, minSize: 4 },
-    { id: 'rgpdCif', label: 'rgpdCif',         x0: 390.8, x1: 468.8, yTop: 718.5, yBot: 725.2, size: 6, minSize: 4 },
-    { id: 'rgpdDomicilio', label: 'rgpdDomicilio', x0: 30.0, x1: 180.0, yTop: 725.4, yBot: 732.1, size: 6, minSize: 4 },
-    { id: 'rgpdCorreo', label: 'rgpdCorreo',   x0: 60.7,  x1: 150.7, yTop: 746.1, yBot: 752.8, size: 6, minSize: 4 },
-    { id: 'rgpdTelefono', label: 'rgpdTelefono', x0: 198.4, x1: 342.4, yTop: 746.1, yBot: 752.8, size: 6, minSize: 4 }
+    { id: 'nombre',  label: 'nombreCompleto',  x0: 79.5,  x1: 319.5, yTop: 82.7,  yBot: 91.6,  yBase: 90.6, size: 10, minSize: 6 },
+    { id: 'dni',     label: 'dni',             x0: 369.0, x1: 578.0, yTop: 82.7,  yBot: 91.6,  yBase: 90.6, size: 10, minSize: 6 },
+    { id: 'estudio', label: 'estudio',         x0: 329.7, x1: 378.6, yTop: 101.0, yBot: 108.8, yBase: 107.8, size: 9, minSize: 5 },
+    { id: 'rgpdResponsable', label: 'rgpdResponsable', x0: 274.8, x1: 364.8, yTop: 718.5, yBot: 725.2, yBase: 724.2, size: 8, minSize: 4 },
+    { id: 'rgpdCif', label: 'rgpdCif',         x0: 390.8, x1: 468.8, yTop: 718.5, yBot: 725.2, yBase: 724.2, size: 8, minSize: 4 },
+    { id: 'rgpdDomicilio', label: 'rgpdDomicilio', x0: 30.0, x1: 180.0, yTop: 725.4, yBot: 732.1, yBase: 731.1, size: 8, minSize: 4 },
+    { id: 'rgpdCorreo', label: 'rgpdCorreo',   x0: 60.7,  x1: 150.7, yTop: 746.1, yBot: 752.8, yBase: 751.8, size: 8, minSize: 4 },
+    { id: 'rgpdTelefono', label: 'rgpdTelefono', x0: 198.4, x1: 342.4, yTop: 746.1, yBot: 752.8, yBase: 751.8, size: 8, minSize: 4 }
   ];
 
   // Huellas de firma (top-down) + líneas de datos bajo cada firma.
   var SIG_CLIENT = { canvas: 'firmaCanvas', imgX: 110, imgY: 620, imgW: 170, imgH: 42 };
   var SIG_CENTER = { canvas: 'firmaProfCanvas', imgX: 413, imgY: 620, imgW: 160, imgH: 42 };
   var DAT_CLIENT = [
-    { x0: 110, x1: 290, yBase: 674, size: 7, minSize: 5, get: function () { return 'Nombre completo: ' + getInputValue('nombreCompleto'); } },
-    { x0: 110, x1: 290, yBase: 684, size: 7, minSize: 5, get: function () { return 'DNI/NIE: ' + getInputValue('dni'); } },
+    { x0: 110, x1: 290, yBase: 674, size: 8, minSize: 6, get: function () { return 'Nombre completo: ' + getInputValue('nombreCompleto'); } },
+    { x0: 110, x1: 290, yBase: 684, size: 8, minSize: 6, get: function () { return 'DNI/NIE: ' + getInputValue('dni'); } },
     { x0: 110, x1: 290, yBase: 694, size: 7, minSize: 5, get: function () { return 'Firma: ' + ahora(); } }
   ];
   var DAT_CENTER = [
-    { x0: 413, x1: 573, yBase: 674, size: 7, minSize: 5, get: function () { return 'Centro: ' + getInputValue('estudio'); } },
-    { x0: 413, x1: 573, yBase: 684, size: 7, minSize: 5, get: function () { return 'CIF/DNI rep.: ' + getInputValue('rgpdCif'); } }
+    { x0: 413, x1: 573, yBase: 674, size: 8, minSize: 6, get: function () { return 'Centro: ' + getInputValue('estudio'); } },
+    { x0: 413, x1: 573, yBase: 684, size: 8, minSize: 6, get: function () { return 'CIF/DNI rep.: ' + getInputValue('rgpdCif'); } }
   ];
+
+  // Todos los elementos dinámicos (campos + líneas de datos) se dibujan con un
+  // único tamaño de fuente global: si uno colapsa por texto largo, ese tamaño
+  // se aplica al resto para que no haya tamaños dispares.
+  var DRAWABLES = [];
+  FIELDS.forEach(function (f) { DRAWABLES.push({ kind: 'field', item: f }); });
+  DAT_CLIENT.concat(DAT_CENTER).forEach(function (dl) { DRAWABLES.push({ kind: 'line', item: dl }); });
 
   var el = {
     estudio: document.getElementById('estudio'),
@@ -81,10 +88,12 @@
     btnCancelarNombre: document.getElementById('btnCancelarNombre'),
     saveOpts: Array.prototype.slice.call(document.querySelectorAll('.save-opt')),
     toast: document.getElementById('toast'),
-    cfgEstudioNombre: document.getElementById('cfgEstudioNombre'),
-    cfgEstudioDireccion: document.getElementById('cfgEstudioDireccion'),
-    cfgEstudioTelefono: document.getElementById('cfgEstudioTelefono'),
-    cfgEstudioCiudad: document.getElementById('cfgEstudioCiudad')
+    cfgEstudio: document.getElementById('cfgEstudio'),
+    cfgRgpdResponsable: document.getElementById('cfgRgpdResponsable'),
+    cfgRgpdCif: document.getElementById('cfgRgpdCif'),
+    cfgRgpdDomicilio: document.getElementById('cfgRgpdDomicilio'),
+    cfgRgpdCorreo: document.getElementById('cfgRgpdCorreo'),
+    cfgRgpdTelefono: document.getElementById('cfgRgpdTelefono')
   };
 
   var _mctx = null;
@@ -96,16 +105,73 @@
     return _mctx;
   }
 
-  function fitSize(text, size, minSize, maxW) {
-    if (!text) return size;
+  function canvasTextWidth(text, size) {
     var ctx = measureCtx();
+    ctx.font = size + 'px Helvetica, Arial, sans-serif';
+    return ctx.measureText(text).width;
+  }
+
+  // Divide un texto en líneas que quepan en maxW (sin partir palabras salvo
+  // que una palabra aislada desborde; entonces parte por caracteres).
+  function splitText(text, maxW, wFn) {
+    text = String(text || '');
+    var words = text.split(/\s+/);
+    var lines = [];
+    var cur = '';
+    for (var wi = 0; wi < words.length; wi++) {
+      var w = words[wi];
+      var test = cur ? cur + ' ' + w : w;
+      if (!cur) {
+        cur = w;
+      } else if (wFn(test) <= maxW) {
+        cur = test;
+      } else {
+        lines.push(cur);
+        cur = w;
+      }
+    }
+    if (cur) lines.push(cur);
+    // Palabras demasiado largas: cortar por caracteres
+    var out = [];
+    for (var li = 0; li < lines.length; li++) {
+      var t = lines[li];
+      while (t.length > 1 && wFn(t) > maxW) {
+        var j = 1;
+        while (j < t.length && wFn(t.slice(0, j + 1)) <= maxW) j++;
+        out.push(t.slice(0, j));
+        t = t.slice(j);
+      }
+      if (t) out.push(t);
+    }
+    return out;
+  }
+
+  // Auto-escalado de fuente + wrap de seguridad. Devuelve {size, lines}.
+  function layoutText(text, size, minSize, maxW, wFn) {
     var s = size;
     while (s >= minSize) {
-      ctx.font = s + 'px Helvetica, Arial, sans-serif';
-      if (ctx.measureText(text).width <= maxW) return s;
+      if (wFn(text, s) <= maxW) return { size: s, lines: [text] };
       s -= 0.5;
     }
-    return minSize;
+    s = Math.max(3, minSize);
+    return { size: s, lines: splitText(text, maxW, function (t) { return wFn(t, s); }) };
+  }
+
+  // Tamaño de fuente único para todos los campos: el menor tamaño necesario
+  // para que NINGÚN elemento con contenido desborde su hueco.
+  function computeGlobalSize(wFn) {
+    var min = Infinity;
+    for (var i = 0; i < DRAWABLES.length; i++) {
+      var d = DRAWABLES[i];
+      var val = d.kind === 'field'
+        ? String(getInputValue(d.item.label) || '').toUpperCase()
+        : String(d.item.get() || '').toUpperCase();
+      if (!val) continue;
+      var maxW = (d.item.x1 - d.item.x0) - 2 * INSET - d.item.size * 0.25;
+      var lay = layoutText(val, d.item.size, d.item.minSize, maxW, wFn);
+      if (lay.size < min) min = lay.size;
+    }
+    return min === Infinity ? null : min;
   }
 
   function canvasToPngDataUrl(c) {
@@ -210,31 +276,51 @@
   // =========================================================================
   // VISTA PREVIA (canvas, top-down)
   // =========================================================================
-  function previewField(ctx, f) {
-    var val = getInputValue(f.label);
+  function previewField(ctx, f, gs) {
+    var val = String(getInputValue(f.label) || '').toUpperCase();
     if (!val) return;
-    if (DEBUG) console.log('previewField:', f.label, '=>', val ? val.substring(0,20) : '(vacío)', 'coords x0:', f.x0, 'x1:', f.x1, 'yTop:', f.yTop, 'yBot:', f.yBot);
-    var maxW = f.x1 - f.x0 - 2 * INSET;
-    var sz = fitSize(val, f.size, f.minSize, maxW);
+    if (DEBUG) {
+      var pxTextX = (f.x0 + INSET) * SCALE;
+      var pxTextY = (PAGE_H - f.yBase) * SCALE;
+      console.log('previewField:', f.label, '=>', val ? val.substring(0,20) : '(vacío)', 'pixel coords:', pxTextX, pxTextY);
+    }
+    // Tamaño común a todos los campos (si un campo colapsa, el resto usa el suyo)
+    var sizeBase = gs && gs < f.size ? gs : f.size;
+    // Margen de seguridad dinámico (0.25em) a la derecha para no pisar el texto contiguo
+    var maxW = f.x1 - f.x0 - 2 * INSET - sizeBase * 0.25;
+    var lay = layoutText(val, sizeBase, f.minSize, maxW, canvasTextWidth);
     // borrar hueco
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(f.x0 * SCALE, f.yTop * SCALE, (f.x1 - f.x0) * SCALE, (f.yBot - f.yTop) * SCALE);
-    // escribir valor inline
+    // escribir valor (negrita, mayúsculas) con separación de línea que cabe del hueco
+    var maxH = f.yBot - f.yTop;
+    var lh = Math.min(lay.size * 1.12, maxH / Math.max(1, lay.lines.length));
     ctx.fillStyle = '#000000';
-    ctx.font = (sz * SCALE) + 'px Helvetica, Arial, sans-serif';
+    ctx.font = 'bold ' + (lay.size * SCALE) + 'px Helvetica, Arial, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(val, (f.x0 + INSET) * SCALE, (PAGE_H - f.yBot) * SCALE);
+    for (var i = 0; i < lay.lines.length; i++) {
+      var baseline = f.yBase - lh * (lay.lines.length - 1 - i);
+      ctx.fillText(lay.lines[i], (f.x0 + INSET) * SCALE, (PAGE_H - baseline) * SCALE);
+    }
   }
 
-  function previewDataLine(ctx, dl) {
-    var val = dl.get();
+  function previewDataLine(ctx, dl, gs) {
+    var val = String(dl.get() || '').toUpperCase();
     if (!val) return;
-    if (DEBUG) console.log('previewDataLine:', dl.get.toString().substring(0,15), '=>', val ? val.substring(0,20) : '(vacío)', 'coords x0:', dl.x0, 'yBase:', dl.yBase);
-    var sz = fitSize(val, dl.size, dl.minSize, dl.x1 - dl.x0);
+    if (DEBUG) {
+      var pxX = dl.x0 * SCALE;
+      var pxY = dl.yBase * SCALE;
+      console.log('previewDataLine:', dl.get.toString().substring(0,15), '=>', val ? val.substring(0,20) : '(vacío)', 'pixel coords:', pxX, pxY);
+    }
+    var sizeBase = gs && gs < dl.size ? gs : dl.size;
+    var maxW = dl.x1 - dl.x0 - sizeBase * 0.25;
+    var lay = layoutText(val, sizeBase, dl.minSize, maxW, canvasTextWidth);
     ctx.fillStyle = '#000000';
-    ctx.font = (sz * SCALE) + 'px Helvetica, Arial, sans-serif';
+    ctx.font = 'bold ' + (lay.size * SCALE) + 'px Helvetica, Arial, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(val, dl.x0 * SCALE, dl.yBase * SCALE);
+    for (var i = 0; i < lay.lines.length; i++) {
+      ctx.fillText(lay.lines[i], dl.x0 * SCALE, (PAGE_H - (dl.yBase + i * lay.size * 1.12)) * SCALE);
+    }
   }
 
   function renderPreview() {
@@ -246,6 +332,8 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, c.width, c.height);
     if (bgImg) ctx.drawImage(bgImg, 0, 0, c.width, c.height);
+
+    var sigs = [SIG_CLIENT, SIG_CENTER];
 
     if (DEBUG) {
       console.log('renderPreview: dibujando', FIELDS.length, 'fields y', sigs.length, 'firmas');
@@ -259,7 +347,6 @@
         ctx.fillText('field' + i + ':' + (f.label ? document.getElementById(f.label).value.substring(0,12) : ''), x0, yTop - 4);
       });
       // Dibujar rectángulos alrededor de las líneas de datos de firma
-      var sigs = [SIG_CLIENT, SIG_CENTER];
       for (var s = 0; s < sigs.length; s++) {
         var sq = sigs[s];
         var yBaseList = [674, 684, 694]; // DAT_CLIENT y DAT_CENTER yBases
@@ -273,7 +360,9 @@
       }
     }
 
-    for (var i = 0; i < FIELDS.length; i++) previewField(ctx, FIELDS[i]);
+    var gs = computeGlobalSize(canvasTextWidth);
+
+    for (var i = 0; i < FIELDS.length; i++) previewField(ctx, FIELDS[i], gs);
 
     var sigs = [SIG_CLIENT, SIG_CENTER];
     for (var s = 0; s < sigs.length; s++) {
@@ -283,7 +372,7 @@
         ctx.drawImage(sigCanvas, sq.imgX * SCALE, sq.imgY * SCALE, sq.imgW * SCALE, sq.imgH * SCALE);
       }
       var lines = sq === SIG_CLIENT ? DAT_CLIENT : DAT_CENTER;
-      for (var l = 0; l < lines.length; l++) previewDataLine(ctx, lines[l]);
+      for (var l = 0; l < lines.length; l++) previewDataLine(ctx, lines[l], gs);
     }
 
     el.previewWrap.appendChild(c);
@@ -293,11 +382,13 @@
   // =========================================================================
   // PDF (pdf-lib, bottom-up). y = PAGE_H - (top-down)
   // =========================================================================
-  function pdfField(page, font, f) {
-    var val = getInputValue(f.label);
+  function pdfField(page, font, f, gs) {
+    var val = String(getInputValue(f.label) || '').toUpperCase();
     if (!val) return;
-    var maxW = f.x1 - f.x0 - 2 * INSET;
-    var sz = fitSize(val, f.size, f.minSize, maxW);
+    var sizeBase = gs && gs < f.size ? gs : f.size;
+    var maxW = f.x1 - f.x0 - 2 * INSET - sizeBase * 0.25;
+    var wFn = function (t, s) { return font.widthOfTextAtSize(t, s); };
+    var lay = layoutText(val, sizeBase, f.minSize, maxW, wFn);
     page.drawRectangle({
       x: f.x0,
       y: PAGE_H - f.yBot,
@@ -306,26 +397,36 @@
       color: PDFLib.rgb(1, 1, 1),
       borderWidth: 0
     });
-    page.drawText(val, {
-      x: f.x0 + INSET,
-      y: PAGE_H - f.yBot,
-      size: sz,
-      font: font,
-      color: PDFLib.rgb(0, 0, 0)
-    });
+    var maxH = f.yBot - f.yTop;
+    var lh = Math.min(lay.size * 1.12, maxH / Math.max(1, lay.lines.length));
+    for (var i = 0; i < lay.lines.length; i++) {
+      var baseline = f.yBase - lh * (lay.lines.length - 1 - i);
+      page.drawText(lay.lines[i], {
+        x: f.x0 + INSET,
+        y: PAGE_H - baseline,
+        size: lay.size,
+        font: font,
+        color: PDFLib.rgb(0, 0, 0)
+      });
+    }
   }
 
-  function pdfDataLine(page, font, dl) {
-    var val = dl.get();
+  function pdfDataLine(page, font, dl, gs) {
+    var val = String(dl.get() || '').toUpperCase();
     if (!val) return;
-    var sz = fitSize(val, dl.size, dl.minSize, dl.x1 - dl.x0);
-    page.drawText(val, {
-      x: dl.x0,
-      y: PAGE_H - dl.yBase,
-      size: sz,
-      font: font,
-      color: PDFLib.rgb(0, 0, 0)
-    });
+    var sizeBase = gs && gs < dl.size ? gs : dl.size;
+    var maxW = dl.x1 - dl.x0 - sizeBase * 0.25;
+    var wFn = function (t, s) { return font.widthOfTextAtSize(t, s); };
+    var lay = layoutText(val, sizeBase, dl.minSize, maxW, wFn);
+    for (var i = 0; i < lay.lines.length; i++) {
+      page.drawText(lay.lines[i], {
+        x: dl.x0,
+        y: PAGE_H - (dl.yBase + i * lay.size * 1.12),
+        size: lay.size,
+        font: font,
+        color: PDFLib.rgb(0, 0, 0)
+      });
+    }
   }
 
   function embedSig(doc, page, sigCanvas, box) {
@@ -345,10 +446,12 @@
   function generarBlobPDF() {
     var bytes = b64ToBytes(TEMPLATE_PDF_B64);
     return PDFLib.PDFDocument.load(bytes).then(function (doc) {
-      return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function (font) {
+      return doc.embedFont(PDFLib.StandardFonts.HelveticaBold).then(function (font) {
         var page = doc.getPage(0);
+        var wFn = function (t, s) { return font.widthOfTextAtSize(t, s); };
+        var gs = computeGlobalSize(wFn);
 
-        for (var i = 0; i < FIELDS.length; i++) pdfField(page, font, FIELDS[i]);
+        for (var i = 0; i < FIELDS.length; i++) pdfField(page, font, FIELDS[i], gs);
 
         var sigPromises = [];
         if (!firmaVacia(el.firmaCanvas)) {
@@ -359,8 +462,8 @@
         }
 
         var dl;
-        for (i = 0; i < DAT_CLIENT.length; i++) pdfDataLine(page, font, DAT_CLIENT[i]);
-        for (i = 0; i < DAT_CENTER.length; i++) pdfDataLine(page, font, DAT_CENTER[i]);
+        for (i = 0; i < DAT_CLIENT.length; i++) pdfDataLine(page, font, DAT_CLIENT[i], gs);
+        for (i = 0; i < DAT_CENTER.length; i++) pdfDataLine(page, font, DAT_CENTER[i], gs);
 
         return Promise.all(sigPromises).then(function () { return doc.save(); });
       });
@@ -462,8 +565,18 @@
 
   function guardarEstudioEnFormulario() {
     var config = cargarConfig();
-    var est = config.estudio || {};
-    el.estudio.value = est.nombre || '';
+    configMap.forEach(function (m) {
+      var stored = localStorage.getItem(m.form);
+      var formInp = document.getElementById(m.form);
+      if (formInp && stored) formInp.value = stored;
+    });
+    // Mantener config.estudio para compatibilidad hacia atrás
+    var inpEstudio = document.getElementById('estudio');
+    config.estudio = {
+      nombre: inpEstudio ? inpEstudio.value.trim() : ''
+    };
+    guardarConfig(config);
+    autoRegenerar();
   }
 
   var signaturePad = null;
@@ -477,7 +590,11 @@
     canvas.height = h;
     canvas.getContext('2d', { willReadFrequently: true });
     var pad = new SignaturePad(canvas, { penColor: '#000000', minWidth: 1, maxWidth: 2.5 });
-    pad.onEnd = function () { autoRegenerar(); };
+    // Renderizar el preview en cuanto se levanta el dedo/ratón
+    var onUp = function () { autoRegenerar(); };
+    pad.onEnd = onUp;
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('touchend', onUp);
     return pad;
   }
 
@@ -521,12 +638,11 @@
 
   el.btnConfig.addEventListener('click', function () {
     var config = cargarConfig();
-    var est = config.estudio || {};
     el.configUrl.value = config.url || '';
-    el.cfgEstudioNombre.value = est.nombre || '';
-    el.cfgEstudioDireccion.value = est.direccion || '';
-    el.cfgEstudioTelefono.value = est.telefono || '';
-    el.cfgEstudioCiudad.value = est.ciudad || '';
+    configMap.forEach(function (m) {
+      var cfgInp = document.getElementById(m.cfg);
+      if (cfgInp) cfgInp.value = localStorage.getItem(m.form) || '';
+    });
     el.popupConfig.classList.add('active');
   });
   el.btnCancelarConfig.addEventListener('click', function () {
@@ -535,13 +651,15 @@
   el.btnGuardarConfig.addEventListener('click', function () {
     var config = cargarConfig();
     config.url = el.configUrl.value.trim();
-    config.estudio = {
-      nombre: el.cfgEstudioNombre.value.trim(),
-      direccion: el.cfgEstudioDireccion.value.trim(),
-      telefono: el.cfgEstudioTelefono.value.trim(),
-      ciudad: el.cfgEstudioCiudad.value.trim()
-    };
     guardarConfig(config);
+    configMap.forEach(function (m) {
+      var cfgInp = document.getElementById(m.cfg);
+      var formInp = document.getElementById(m.form);
+      if (cfgInp) {
+        try { localStorage.setItem(m.form, cfgInp.value.trim()); } catch (e) {}
+        if (formInp) formInp.value = cfgInp.value.trim();
+      }
+    });
     el.popupConfig.classList.remove('active');
     guardarEstudioEnFormulario();
     autoRegenerar();
@@ -554,8 +672,16 @@
       if (opciones[clave]) delete config[clave];
     });
     guardarConfig(config);
+    if (opciones.estudio) {
+      configMap.forEach(function (m) {
+        try { localStorage.removeItem(m.form); } catch (e) {}
+        var cfgInp = document.getElementById(m.cfg);
+        if (cfgInp) cfgInp.value = '';
+        var formInp = document.getElementById(m.form);
+        if (formInp) formInp.value = '';
+      });
+    }
     el.popupConfig.classList.remove('active');
-    guardarEstudioEnFormulario();
     autoRegenerar();
     mostrarToast(mensaje, 'ok');
   }
@@ -577,10 +703,28 @@
   });
 
   var campoIds = ['estudio', 'nombreCompleto', 'dni', 'rgpdResponsable', 'rgpdCif', 'rgpdDomicilio', 'rgpdCorreo', 'rgpdTelefono'];
+  // Para cada campo, al cambiar el valor, lo guardamos en localStorage
+  // y actualizamos la preview en tiempo real
+  var localStorageKeys = ['estudio', 'rgpdResponsable', 'rgpdCif', 'rgpdDomicilio', 'rgpdCorreo', 'rgpdTelefono'];
+  // Relación modal(config) <-> formulario(RGPD) y clave localStorage
+  var configMap = [
+    { cfg: 'cfgEstudio',        form: 'estudio' },
+    { cfg: 'cfgRgpdResponsable', form: 'rgpdResponsable' },
+    { cfg: 'cfgRgpdCif',         form: 'rgpdCif' },
+    { cfg: 'cfgRgpdDomicilio',   form: 'rgpdDomicilio' },
+    { cfg: 'cfgRgpdCorreo',      form: 'rgpdCorreo' },
+    { cfg: 'cfgRgpdTelefono',    form: 'rgpdTelefono' }
+  ];
   campoIds.forEach(function (id) {
     var inp = document.getElementById(id);
     if (inp) {
-      inp.addEventListener('input', autoRegenerar);
+      inp.addEventListener('input', function () {
+        // Guardar en localStorage los campos que se deben persistir
+        if (localStorageKeys.includes(id)) {
+          try { localStorage.setItem(id, inp.value.trim()); } catch (e) {}
+        }
+        autoRegenerar();
+      });
       inp.addEventListener('change', autoRegenerar);
     }
   });
@@ -590,6 +734,12 @@
     signaturePad = initSigPad(el.firmaCanvas);
     signaturePadProf = initSigPad(el.firmaProfCanvas);
     guardarEstudioEnFormulario();
+    // Precargar campos persistidos (estudio + RGPD) desde localStorage
+    localStorageKeys.forEach(function (key) {
+      var stored = localStorage.getItem(key);
+      var inp = document.getElementById(key);
+      if (stored && inp) inp.value = stored;
+    });
     renderPreview();
   }
 

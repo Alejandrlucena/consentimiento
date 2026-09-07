@@ -11,6 +11,7 @@ consentimiento/
 ├── index.html              → El formulario (HTML) + vista previa + modales
 ├── css/style.css           → Estilos (responsive, táctil, acordeón colapsable)
 ├── js/script.js            → Motor PDF (pdf-lib) + lógica de guardado y config
+├── js/template.js          → Plantilla del PDF en Base64 (no editar)
 ├── apps-script/
 │   ├── Code.gs             → Google Apps Script (recibe PDF y lo guarda en Drive)
 │   └── appsscript.json     → Manifiesto del Web App (access: ANYONE)
@@ -23,7 +24,7 @@ consentimiento/
 
 ## Cómo funciona
 
-1. Rellena el formulario (título, establecimiento, cliente, detalles del tatuaje, salud, declaración adicional y firmas).
+1. Rellena el formulario: en **⚙ Configuración** los datos de "Responsable del Tratamiento RGPD" (nombre del estudio + responsable, CIF, domicilio, correo y teléfono) y en el formulario los del cliente y las firmas.
 2. La **vista previa** se regenera al instante mientras escribes o firmas.
 3. Pulsa **💾 Guardar PDF** y elige cómo guardarlo:
    - **Descargar en el dispositivo**
@@ -109,8 +110,8 @@ repositorio). Se configura una única vez con `setupFolder()`:
 
 ## Datos persistentes vs. temporales
 
-- **Permanentes (localStorage):** URL del Apps Script y datos del establecimiento.
-- **Se borran al recargar:** datos del cliente, detalles del tatuaje, salud marcada, confirmación de cuidados y firmas.
+- **Permanentes (localStorage):** URL del Apps Script y los datos de "Responsable del Tratamiento RGPD" (nombre del estudio, responsable, CIF, domicilio, correo y teléfono). Se guardan desde **⚙ Configuración** y se rellenan automáticamente al recargar.
+- **Se borran al recargar:** datos del cliente y firmas.
 
 ## Despliegue en GitHub
 

@@ -16,36 +16,16 @@
   </header>
 
   <main class="main-container">
-    <!-- Card: formulario -->
+<!-- Card: formulario -->
     <section class="form-card">
       <details class="section" open>
-        <summary>Datos del establecimiento</summary>
+        <summary>Responsable del Tratamiento RGPD</summary>
         <div class="section-body">
           <div class="field">
-            <label for="estudio">Nombre del estudio / centro</label>
+            <label for="estudio">Nombre del estudio</label>
             <input type="text" id="estudio" placeholder="Nombre del estudio" autocomplete="off">
           </div>
-        </div>
-      </details>
 
-      <details class="section" open>
-        <summary>Datos del cliente</summary>
-        <div class="section-body">
-          <div class="field">
-            <label for="nombreCompleto">Nombre completo del cliente</label>
-            <input type="text" id="nombreCompleto" placeholder="Nombre y apellidos" autocomplete="off">
-          </div>
-
-          <div class="field">
-            <label for="dni">DNI / NIE del cliente</label>
-            <input type="text" id="dni" placeholder="12345678A" autocomplete="off">
-          </div>
-        </div>
-      </details>
-
-      <details class="section">
-        <summary>Responsable del Tratamiento (RGPD)</summary>
-        <div class="section-body">
           <div class="field">
             <label for="rgpdResponsable">Responsable del Tratamiento</label>
             <input type="text" id="rgpdResponsable" placeholder="Nombre de la entidad" autocomplete="off">
@@ -69,6 +49,21 @@
           <div class="field">
             <label for="rgpdTelefono">Teléfono de contacto</label>
             <input type="tel" id="rgpdTelefono" placeholder="900 000 000" autocomplete="off">
+          </div>
+        </div>
+      </details>
+
+      <details class="section" open>
+        <summary>Datos del cliente</summary>
+        <div class="section-body">
+          <div class="field">
+            <label for="nombreCompleto">Nombre completo del cliente</label>
+            <input type="text" id="nombreCompleto" placeholder="Nombre y apellidos" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="dni">DNI / NIE del cliente</label>
+            <input type="text" id="dni" placeholder="12345678A" autocomplete="off">
           </div>
         </div>
       </details>
@@ -140,11 +135,13 @@
     <div class="modal-box">
       <h3>Configuración</h3>
 
-      <p class="cfg-label">Datos del establecimiento (se guardan en este navegador)</p>
-      <input type="text" id="cfgEstudioNombre" placeholder="Nombre del estudio">
-      <input type="text" id="cfgEstudioDireccion" placeholder="Dirección">
-      <input type="text" id="cfgEstudioTelefono" placeholder="Teléfono / Contacto">
-      <input type="text" id="cfgEstudioCiudad" placeholder="Ciudad">
+      <p class="cfg-label">Responsable del Tratamiento RGPD (se guardan en este navegador)</p>
+      <input type="text" id="cfgEstudio" placeholder="Nombre del estudio">
+      <input type="text" id="cfgRgpdResponsable" placeholder="Responsable del Tratamiento">
+      <input type="text" id="cfgRgpdCif" placeholder="CIF">
+      <input type="text" id="cfgRgpdDomicilio" placeholder="Domicilio">
+      <input type="email" id="cfgRgpdCorreo" placeholder="Correo electrónico">
+      <input type="tel" id="cfgRgpdTelefono" placeholder="Teléfono">
 
       <p class="cfg-label">Apps Script (destino de los PDFs)</p>
       <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/XXXXX/exec">
@@ -174,6 +171,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
   <script src="js/template.js?v=54"></script>
-  <script src="js/script.js?v=54"></script>
+  <script src="js/script.js?v=55"></script>
 </body>
 </html>
