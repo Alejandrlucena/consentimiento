@@ -6,7 +6,9 @@
   var PAGE_W = 612;
   var PAGE_H = 792;
   var INSET = 2.0; // margen horizontal del valor dentro del hueco (pts)
-  var DEBUG = true; // <- modo depuración activado para este test
+  // DEBUG: activado durante desarrollo (rectángulos de depuración en preview
+  // + console.log). Poner a false en producción.
+  var DEBUG = false;
 
   // Guardia anti-caché: si js/template.js no está presente (p. ej. por caché
   // antigua o mezcla de versiones), se muestra un aviso claro en vez de quedar
